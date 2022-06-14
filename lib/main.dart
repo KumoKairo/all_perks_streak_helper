@@ -42,21 +42,35 @@ class KillersPerksViewWidget extends StatefulWidget {
 }
 
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
+  static const String killersKey = 'killers';
+  static const String perksKey = 'perks';
+
   List<String>? _killers;
   List<String>? _perks;
   Map<String, List<String>>? _killerPerks;
 
-  void refresh() {
-    print('Refresh');
+  Future refresh() async {
     setState(() {});
+
+    final prefs = await SharedPreferences.getInstance();
+    await prefs.setStringList(killersKey, _killers!);
+    await prefs.setStringList(perksKey, _perks!);
+
+    for (var killer in _killerPerks!.keys) {
+      if (_killerPerks![killer]!.isNotEmpty) {
+        await prefs.setStringList(killer, _killerPerks![killer]!);
+      }
+    }
   }
 
   Future<ImagePathsData> _getAllImagePaths() async {
-    final prefs = await SharedPreferences.getInstance();
-
     if (_killers != null && _perks != null) {
       return ImagePathsData(_killers!, _perks!);
     }
+
+    final prefs = await SharedPreferences.getInstance();
+    final List<String>? storedKillers = prefs.getStringList(killersKey);
+    final List<String>? storedPerks = prefs.getStringList(perksKey);
 
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
@@ -66,6 +80,34 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     _perks = manifestMap.keys
         .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
         .toList();
+
+    _killerPerks = {};
+    for (int i = 0; i < _killers!.length; i++) {
+      _killerPerks![_killers![i]] = List.empty(growable: true);
+    }
+
+    if (storedKillers != null && storedPerks != null) {
+      final newKillers =
+          _killers!.where((element) => !storedKillers.contains(element));
+
+      final newPerks =
+          _perks!.where((element) => !storedPerks.contains(element));
+
+      _killers = storedKillers;
+      _killers!.addAll(newKillers);
+      _perks = storedPerks;
+      _perks!.addAll(newPerks);
+    }
+
+    for (var killer in _killers!) {
+      final storedKillerPerks = prefs.getStringList(killer);
+      if (storedKillerPerks != null) {
+        for (var storedKillerPerk in storedKillerPerks) {
+          _perks!.remove(storedKillerPerk);
+          _killerPerks![killer]!.add(storedKillerPerk);
+        }
+      }
+    }
 
     return ImagePathsData(_killers!, _perks!);
   }
@@ -83,9 +125,49 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 index < paths.killersImagePaths.length;
                 index++) {
               var killer = paths.killersImagePaths[index];
+              var killerPerks = _killerPerks![killer]!;
+              var killerPerkWidgets = List<Widget>.empty(growable: true);
+              for (var killerPerk in killerPerks) {
+                var killerPerkWidget = Container(
+                  width: 88.0,
+                  height: 88.0,
+                  decoration: BoxDecoration(
+                      shape: BoxShape.circle,
+                      color: CustomColors.background,
+                      border: Border.all(color: CustomColors.border, width: 2)),
+                  margin: const EdgeInsets.all(1.0),
+                  child: Image(image: AssetImage(killerPerk)),
+                );
+                killerPerkWidgets.add(Draggable<String>(
+                    data: '$killer $killerPerk',
+                    feedback: killerPerkWidget,
+                    childWhenDragging: const SizedBox.shrink(),
+                    child: killerPerkWidget));
+              }
+
               killerPortraits.add(DragTarget(
                 key: Key(killer),
-                onAccept: (perk) => print('killers $perk'),
+                onWillAccept: (perk) => _killerPerks![killer]!.length < 4,
+                onAccept: (perk) {
+                  {
+                    var killerName = '';
+                    var perkName = '';
+
+                    if ((perk as String).contains(' ')) {
+                      killerName = perk.split(' ')[0];
+                      perkName = perk.split(' ')[1];
+                    } else {
+                      perkName = perk;
+                    }
+
+                    if (killerName != '') {
+                      _killerPerks![killerName]!.remove(perkName);
+                    }
+                    _killerPerks![killer]!.add(perkName);
+                    _perks!.remove(perkName);
+                    refresh();
+                  }
+                },
                 builder: (context, _, __) => Container(
                   decoration: const BoxDecoration(
                       shape: BoxShape.rectangle,
@@ -95,7 +177,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(children: [
                     ReorderableDragStartListener(
-                        index: index, child: Image(image: AssetImage(killer)))
+                        index: index, child: Image(image: AssetImage(killer))),
+                    ...killerPerkWidgets,
                   ]),
                 ),
               ));
@@ -133,7 +216,24 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                     children: killerPortraits)),
             Expanded(
                 child: DragTarget(
-                    onAccept: (data) => print('perks: $data'),
+                    onAccept: (perk) {
+                      var killerName = '';
+                      var perkName = '';
+
+                      if ((perk as String).contains(' ')) {
+                        killerName = perk.split(' ')[0];
+                        perkName = perk.split(' ')[1];
+                      } else {
+                        perkName = perk;
+                      }
+
+                      if (killerName != '') {
+                        _killerPerks![killerName]!.remove(perkName);
+                      }
+                      _perks!.add(perkName);
+                      _perks!.sort((a, b) => a.compareTo(b));
+                      refresh();
+                    },
                     builder: (context, _, __) => GridView.count(
                           controller: ScrollController(),
                           crossAxisCount: 8,
