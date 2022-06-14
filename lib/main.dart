@@ -178,7 +178,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                   child: Row(children: [
                     ReorderableDragStartListener(
                         index: index, child: Image(image: AssetImage(killer))),
-                    ...killerPerkWidgets,
+                    ...killerPerkWidgets
                   ]),
                 ),
               ));
