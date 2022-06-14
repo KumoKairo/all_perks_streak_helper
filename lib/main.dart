@@ -2,11 +2,13 @@ import 'dart:convert';
 
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 void main() => runApp(const MyApp());
 
 class CustomColors {
   static const Color background = Color.fromARGB(255, 47, 53, 66);
+  static const Color border = Color.fromARGB(255, 87, 96, 111);
 }
 
 class MyApp extends StatelessWidget {
@@ -19,7 +21,7 @@ class MyApp extends StatelessWidget {
     return const MaterialApp(
       title: _title,
       home: Scaffold(
-        body: MyStatefulWidget(),
+        body: KillersPerksViewWidget(),
       ),
     );
   }
@@ -32,28 +34,41 @@ class ImagePathsData {
   ImagePathsData(this.killersImagePaths, this.perksImagePaths);
 }
 
-class MyStatefulWidget extends StatefulWidget {
-  const MyStatefulWidget({Key? key}) : super(key: key);
+class KillersPerksViewWidget extends StatefulWidget {
+  const KillersPerksViewWidget({Key? key}) : super(key: key);
 
   @override
-  State<MyStatefulWidget> createState() => _MyStatefulWidgetState();
+  State<KillersPerksViewWidget> createState() => _KillersPerksViewWidgetState();
 }
 
-class _MyStatefulWidgetState extends State<MyStatefulWidget> {
-  int acceptedData = 0;
+class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
+  List<String>? _killers;
+  List<String>? _perks;
+  Map<String, List<String>>? _killerPerks;
 
-  Future<ImagePathsData> _getAllImagePaths() async {
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    final killers =
-        manifestMap.keys.where((key) => key.contains('killers/')).toList();
-    final perks =
-        manifestMap.keys.where((key) => key.contains('perks/')).toList();
-
-    return (ImagePathsData(killers, perks));
+  void refresh() {
+    print('Refresh');
+    setState(() {});
   }
 
-  Map<String, String>? _killerPerks;
+  Future<ImagePathsData> _getAllImagePaths() async {
+    final prefs = await SharedPreferences.getInstance();
+
+    if (_killers != null && _perks != null) {
+      return ImagePathsData(_killers!, _perks!);
+    }
+
+    final manifestContent = await rootBundle.loadString('AssetManifest.json');
+    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
+    _killers = manifestMap.keys
+        .where((key) => key.contains('killers/') && !key.contains('.DS_Store'))
+        .toList();
+    _perks = manifestMap.keys
+        .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
+        .toList();
+
+    return ImagePathsData(_killers!, _perks!);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -64,9 +79,13 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           List<Widget> perkIcons = List<Widget>.empty(growable: true);
           if (snapshot.hasData) {
             var paths = snapshot.data as ImagePathsData;
-            for (var killer in paths.killersImagePaths) {
+            for (int index = 0;
+                index < paths.killersImagePaths.length;
+                index++) {
+              var killer = paths.killersImagePaths[index];
               killerPortraits.add(DragTarget(
                 key: Key(killer),
+                onAccept: (perk) => print('killers $perk'),
                 builder: (context, _, __) => Container(
                   decoration: const BoxDecoration(
                       shape: BoxShape.rectangle,
@@ -74,7 +93,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
                       color: CustomColors.background),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                  child: Row(children: [Image(image: AssetImage(killer))]),
+                  child: Row(children: [
+                    ReorderableDragStartListener(
+                        index: index, child: Image(image: AssetImage(killer)))
+                  ]),
                 ),
               ));
             }
@@ -82,8 +104,10 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
               var perkIcon = Container(
                 width: 88.0,
                 height: 88.0,
-                decoration: const BoxDecoration(
-                    shape: BoxShape.circle, color: CustomColors.background),
+                decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: CustomColors.background,
+                    border: Border.all(color: CustomColors.border, width: 2)),
                 margin: const EdgeInsets.all(1.0),
                 child: Image(image: AssetImage(perk)),
               );
@@ -97,14 +121,24 @@ class _MyStatefulWidgetState extends State<MyStatefulWidget> {
           return Row(children: [
             Expanded(
                 child: ReorderableListView(
-                    onReorder: ((oldIndex, newIndex) {}),
+                    buildDefaultDragHandles: false,
+                    onReorder: ((oldIndex, newIndex) {
+                      // moving down
+                      if (oldIndex < newIndex) {
+                        newIndex--;
+                      }
+                      _killers!.insert(newIndex, _killers!.removeAt(oldIndex));
+                      refresh();
+                    }),
                     children: killerPortraits)),
             Expanded(
-                child: GridView.count(
-              controller: ScrollController(),
-              crossAxisCount: 8,
-              children: perkIcons,
-            ))
+                child: DragTarget(
+                    onAccept: (data) => print('perks: $data'),
+                    builder: (context, _, __) => GridView.count(
+                          controller: ScrollController(),
+                          crossAxisCount: 8,
+                          children: perkIcons,
+                        )))
           ]);
         }));
   }
