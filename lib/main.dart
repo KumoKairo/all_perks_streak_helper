@@ -49,7 +49,6 @@ class AllPerksStreakHelper extends StatelessWidget {
               }),
         ),
         body: KillersPerksViewWidget(key: perksKey),
-        backgroundColor: CustomColors.appBackground,
       ),
     );
   }
