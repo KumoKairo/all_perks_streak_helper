@@ -4,15 +4,15 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 
-void main() => runApp(const MyApp());
+void main() => runApp(const AllPerksStreakHelper());
 
 class CustomColors {
   static const Color background = Color.fromARGB(255, 47, 53, 66);
   static const Color border = Color.fromARGB(255, 87, 96, 111);
 }
 
-class MyApp extends StatelessWidget {
-  const MyApp({Key? key}) : super(key: key);
+class AllPerksStreakHelper extends StatelessWidget {
+  const AllPerksStreakHelper({Key? key}) : super(key: key);
 
   static const String _title = 'Flutter Code Sample';
 
