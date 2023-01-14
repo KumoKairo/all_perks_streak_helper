@@ -163,6 +163,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                     if (killerName != '') {
                       _killerPerks![killerName]!.remove(perkName);
                     }
+
                     _killerPerks![killer]!.add(perkName);
                     _perks!.remove(perkName);
                     refresh();
@@ -230,9 +231,12 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       if (killerName != '') {
                         _killerPerks![killerName]!.remove(perkName);
                       }
-                      _perks!.add(perkName);
-                      _perks!.sort((a, b) => a.compareTo(b));
-                      refresh();
+
+                      if (!_perks!.contains(perkName)) {
+                        _perks!.add(perkName);
+                        _perks!.sort((a, b) => a.compareTo(b));
+                        refresh();
+                      }
                     },
                     builder: (context, _, __) => GridView.count(
                           controller: ScrollController(),
