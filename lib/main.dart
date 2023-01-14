@@ -1,27 +1,55 @@
 import 'dart:convert';
-
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:shared_preferences/shared_preferences.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
+import 'package:file_picker/file_picker.dart';
 
-void main() => runApp(const AllPerksStreakHelper());
+void main() => runApp(AllPerksStreakHelper());
 
 class CustomColors {
   static const Color background = Color.fromARGB(255, 47, 53, 66);
   static const Color border = Color.fromARGB(255, 87, 96, 111);
+  static const Color appBackground = Color.fromARGB(255, 149, 165, 166);
 }
 
 class AllPerksStreakHelper extends StatelessWidget {
-  const AllPerksStreakHelper({Key? key}) : super(key: key);
-
-  static const String _title = 'Flutter Code Sample';
+  AllPerksStreakHelper({Key? key}) : super(key: key);
+  final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
   @override
   Widget build(BuildContext context) {
-    return const MaterialApp(
-      title: _title,
+    return MaterialApp(
+      title: 'All perks streak helper',
       home: Scaffold(
-        body: KillersPerksViewWidget(),
+        appBar: AppBar(
+          backgroundColor: CustomColors.background,
+          leading: PopupMenuButton(
+              icon: const Icon(Icons.menu),
+              itemBuilder: (context) {
+                return [
+                  const PopupMenuItem<int>(
+                    value: 0,
+                    child: Text("Save"),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 1,
+                    child: Text("Load"),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 2,
+                    child: Text("Reset"),
+                  ),
+                ];
+              },
+              onSelected: (value) {
+                if (value != null && value is int) {
+                  perksKey.currentState?.menuPressed(value);
+                }
+              }),
+        ),
+        body: KillersPerksViewWidget(key: perksKey),
+        backgroundColor: CustomColors.appBackground,
       ),
     );
   }
@@ -42,36 +70,137 @@ class KillersPerksViewWidget extends StatefulWidget {
 }
 
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
-  static const String killersKey = 'killers';
-  static const String perksKey = 'perks';
-
   List<String>? _killers;
   List<String>? _perks;
   Map<String, List<String>>? _killerPerks;
 
-  Future refresh() async {
-    setState(() {});
+  List<String>? _storedKillers;
+  List<String>? _storedPerks;
+  Map<String, List<String>>? _storedKillerPerks;
 
-    final prefs = await SharedPreferences.getInstance();
-    await prefs.setStringList(killersKey, _killers!);
-    await prefs.setStringList(perksKey, _perks!);
-
-    for (var killer in _killerPerks!.keys) {
-      if (_killerPerks![killer]!.isNotEmpty) {
-        await prefs.setStringList(killer, _killerPerks![killer]!);
-      }
+  void menuPressed(int menuItem) {
+    if (menuItem == 0) {
+      save();
+    } else if (menuItem == 1) {
+      load();
+    } else if (menuItem == 2) {
+      reset();
     }
   }
 
+  Future<void> save() async {
+    var appDir = await getApplicationDocumentsDirectory();
+
+    String? outputFile = await FilePicker.platform.saveFile(
+      initialDirectory: appDir.path,
+      dialogTitle: 'Please select an output file:',
+      fileName: 'perks.save',
+    );
+
+    if (outputFile != null) {
+      var killers = _killers!.join(" ");
+      var perks = _perks!.join(" ");
+      String killerPerks = "";
+      for (var killerPerk in _killerPerks!.entries) {
+        if (killerPerk.value.isNotEmpty) {
+          killerPerks += "${killerPerk.key}:${killerPerk.value.join(",")}-";
+        }
+      }
+      var file = File(outputFile);
+      await file.writeAsString("$killers;$perks;$killerPerks");
+    }
+  }
+
+  Future<String?> load() async {
+    FilePickerResult? loadFrom = await FilePicker.platform.pickFiles();
+    if (loadFrom != null) {
+      var file = File(loadFrom.files.single.path!);
+      var contents = await file.readAsString();
+      var split = contents.split(";");
+      if (split.length != 3) {
+        return null;
+      }
+
+      _storedKillers = split[0].split(" ");
+      _storedPerks = split[1].split(" ");
+      _storedKillerPerks = {};
+
+      var killerPerksRaw = split[2];
+      for (var killerPerkRaw in killerPerksRaw.split("-")) {
+        if (killerPerkRaw.isNotEmpty) {
+          var killerPerks = killerPerkRaw.split(":");
+          var killer = killerPerks[0];
+          var perks = killerPerks[1].split(',');
+          if (perks.isNotEmpty) {
+            for (var actualPerk in perks) {
+              if (_storedKillerPerks![killer] == null) {
+                _storedKillerPerks![killer] = List.empty(growable: true);
+              }
+              _storedKillerPerks![killer]!.add(actualPerk);
+            }
+          }
+        }
+      }
+
+      refresh();
+    } else {
+      return null;
+    }
+  }
+
+  void reset() async {
+    initializePerksAndKillers();
+    refresh();
+  }
+
+  Future refresh() async {
+    setState(() {});
+  }
+
   Future<ImagePathsData> _getAllImagePaths() async {
-    if (_killers != null && _perks != null) {
+    if (_killers != null && _perks != null && _storedKillers == null) {
       return ImagePathsData(_killers!, _perks!);
     }
 
-    final prefs = await SharedPreferences.getInstance();
-    final List<String>? storedKillers = prefs.getStringList(killersKey);
-    final List<String>? storedPerks = prefs.getStringList(perksKey);
+    await initializePerksAndKillers();
 
+    if (_storedKillers != null && _storedPerks != null) {
+      final newKillers =
+          _killers!.where((element) => !_storedKillers!.contains(element));
+
+      final newPerks =
+          _perks!.where((element) => !_storedPerks!.contains(element));
+
+      _killers = _storedKillers;
+      _killers!.addAll(newKillers);
+      _perks = _storedPerks;
+      _perks!.addAll(newPerks);
+    }
+
+    for (var killer in _killers!) {
+      if (_storedKillerPerks != null) {
+        var storedKillerPerks = _storedKillerPerks![killer];
+        if (storedKillerPerks != null && storedKillerPerks.isNotEmpty) {
+          for (var storedKillerPerk in storedKillerPerks) {
+            if (_perks!.contains(storedKillerPerk)) {
+              _perks!.remove(storedKillerPerk);
+            }
+            if (!_killerPerks![killer]!.contains(storedKillerPerk)) {
+              _killerPerks![killer]!.add(storedKillerPerk);
+            }
+          }
+        }
+      }
+    }
+
+    _storedKillers = null;
+    _storedPerks = null;
+    _storedKillerPerks = null;
+
+    return ImagePathsData(_killers!, _perks!);
+  }
+
+  Future<void> initializePerksAndKillers() async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
     _killers = manifestMap.keys
@@ -85,31 +214,6 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     for (int i = 0; i < _killers!.length; i++) {
       _killerPerks![_killers![i]] = List.empty(growable: true);
     }
-
-    if (storedKillers != null && storedPerks != null) {
-      final newKillers =
-          _killers!.where((element) => !storedKillers.contains(element));
-
-      final newPerks =
-          _perks!.where((element) => !storedPerks.contains(element));
-
-      _killers = storedKillers;
-      _killers!.addAll(newKillers);
-      _perks = storedPerks;
-      _perks!.addAll(newPerks);
-    }
-
-    for (var killer in _killers!) {
-      final storedKillerPerks = prefs.getStringList(killer);
-      if (storedKillerPerks != null) {
-        for (var storedKillerPerk in storedKillerPerks) {
-          _perks!.remove(storedKillerPerk);
-          _killerPerks![killer]!.add(storedKillerPerk);
-        }
-      }
-    }
-
-    return ImagePathsData(_killers!, _perks!);
   }
 
   @override
