@@ -1,11 +1,13 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:otz_killer_perks/dataController.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'perksSearchDelegate.dart';
+import 'package:get/get.dart';
 
 void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
@@ -27,6 +29,8 @@ class CustomColors {
 }
 
 class AllPerksStreakHelper extends StatefulWidget {
+  final data = Get.put(DataController());
+
   AllPerksStreakHelper({Key? key}) : super(key: key);
 
   @override
@@ -183,18 +187,14 @@ class KillersPerksViewWidget extends StatefulWidget {
 }
 
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
-  Color _accentColor = CustomColors.itemsBackground;
-
-  List<String>? _killers;
-  List<String>? _perks;
-  Map<String, List<String>>? _killerPerks;
+  final data = Get.find<DataController>();
 
   List<String>? _storedKillers;
   List<String>? _storedPerks;
   Map<String, List<String>>? _storedKillerPerks;
 
   void changeColors(Color newColor) {
-    _accentColor = newColor;
+    data.accentColor = newColor;
     refresh();
   }
 
@@ -218,16 +218,17 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     );
 
     if (outputFile != null) {
-      var killers = _killers!.join(" ");
-      var perks = _perks!.join(" ");
+      var killers = data.killers!.join(" ");
+      var perks = data.perks!.join(" ");
       String killerPerks = "";
-      for (var killerPerk in _killerPerks!.entries) {
+      for (var killerPerk in data.killerPerks!.entries) {
         if (killerPerk.value.isNotEmpty) {
           killerPerks += "${killerPerk.key}:${killerPerk.value.join(",")}-";
         }
       }
       var file = File(outputFile);
-      await file.writeAsString("$killers;$perks;$killerPerks;$_accentColor");
+      await file
+          .writeAsString("$killers;$perks;$killerPerks;${data.accentColor}");
     }
   }
 
@@ -266,9 +267,13 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
           .replaceAll("Color(", "")
           .replaceAll(")", "")
           .replaceAll("0x", "");
+      print(split[3]);
+      print(split[3]);
+      print(accentColor);
+      print(accentColor);
       var intAccentColor = int.parse(accentColor, radix: 16);
-      _accentColor = Color(intAccentColor);
-      widget.onColorLoaded(_accentColor);
+      data.accentColor = Color(intAccentColor);
+      widget.onColorLoaded(data.accentColor);
 
       refresh();
     } else {
@@ -287,35 +292,35 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
   }
 
   Future<ImagePathsData> _getAllImagePaths() async {
-    if (_killers != null && _perks != null && _storedKillers == null) {
-      return ImagePathsData(_killers!, _perks!);
+    if (data.killers != null && data.perks != null && _storedKillers == null) {
+      return ImagePathsData(data.killers!, data.perks!);
     }
 
     await initializePerksAndKillers();
 
     if (_storedKillers != null && _storedPerks != null) {
       final newKillers =
-          _killers!.where((element) => !_storedKillers!.contains(element));
+          data.killers!.where((element) => !_storedKillers!.contains(element));
 
       final newPerks =
-          _perks!.where((element) => !_storedPerks!.contains(element));
+          data.perks!.where((element) => !_storedPerks!.contains(element));
 
-      _killers = _storedKillers;
-      _killers!.addAll(newKillers);
-      _perks = _storedPerks;
-      _perks!.addAll(newPerks);
+      data.killers = _storedKillers;
+      data.killers!.addAll(newKillers);
+      data.perks = _storedPerks;
+      data.perks!.addAll(newPerks);
     }
 
-    for (var killer in _killers!) {
+    for (var killer in data.killers!) {
       if (_storedKillerPerks != null) {
         var storedKillerPerks = _storedKillerPerks![killer];
         if (storedKillerPerks != null && storedKillerPerks.isNotEmpty) {
           for (var storedKillerPerk in storedKillerPerks) {
-            if (_perks!.contains(storedKillerPerk)) {
-              _perks!.remove(storedKillerPerk);
+            if (data.perks!.contains(storedKillerPerk)) {
+              data.perks!.remove(storedKillerPerk);
             }
-            if (!_killerPerks![killer]!.contains(storedKillerPerk)) {
-              _killerPerks![killer]!.add(storedKillerPerk);
+            if (!data.killerPerks![killer]!.contains(storedKillerPerk)) {
+              data.killerPerks![killer]!.add(storedKillerPerk);
             }
           }
         }
@@ -326,22 +331,22 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     _storedPerks = null;
     _storedKillerPerks = null;
 
-    return ImagePathsData(_killers!, _perks!);
+    return ImagePathsData(data.killers!, data.perks!);
   }
 
   Future<void> initializePerksAndKillers() async {
     final manifestContent = await rootBundle.loadString('AssetManifest.json');
     final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    _killers = manifestMap.keys
+    data.killers = manifestMap.keys
         .where((key) => key.contains('killers/') && !key.contains('.DS_Store'))
         .toList();
-    _perks = manifestMap.keys
+    data.perks = manifestMap.keys
         .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
         .toList();
 
-    _killerPerks = {};
-    for (int i = 0; i < _killers!.length; i++) {
-      _killerPerks![_killers![i]] = List.empty(growable: true);
+    data.killerPerks = {};
+    for (int i = 0; i < data.killers!.length; i++) {
+      data.killerPerks![data.killers![i]] = List.empty(growable: true);
     }
   }
 
@@ -358,7 +363,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 index < paths.killersImagePaths.length;
                 index++) {
               var killer = paths.killersImagePaths[index];
-              var killerPerks = _killerPerks![killer]!;
+              var killerPerks = data.killerPerks![killer]!;
               var killerPerkWidgets = List<Widget>.empty(growable: true);
               for (var killerPerk in killerPerks) {
                 var killerPerkWidget = Container(
@@ -366,7 +371,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                   height: 88.0,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: _accentColor,
+                      color: data.accentColor,
                       border: Border.all(
                           color: CustomColors.itemsBorderColor, width: 2)),
                   margin: const EdgeInsets.all(1.0),
@@ -381,7 +386,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
 
               killerPortraits.add(DragTarget(
                 key: Key(killer),
-                onWillAccept: (perk) => _killerPerks![killer]!.length < 4,
+                onWillAccept: (perk) => data.killerPerks![killer]!.length < 4,
                 onAccept: (perk) {
                   {
                     var killerName = '';
@@ -395,11 +400,11 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                     }
 
                     if (killerName != '') {
-                      _killerPerks![killerName]!.remove(perkName);
+                      data.killerPerks![killerName]!.remove(perkName);
                     }
 
-                    _killerPerks![killer]!.add(perkName);
-                    _perks!.remove(perkName);
+                    data.killerPerks![killer]!.add(perkName);
+                    data.perks!.remove(perkName);
                     refresh();
                   }
                 },
@@ -408,7 +413,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       shape: BoxShape.rectangle,
                       borderRadius:
                           const BorderRadius.all(Radius.circular(8.0)),
-                      color: _accentColor),
+                      color: data.accentColor),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(children: [
@@ -425,7 +430,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 height: 88.0,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: _accentColor,
+                    color: data.accentColor,
                     border: Border.all(
                         color: CustomColors.itemsBorderColor, width: 2)),
                 margin: const EdgeInsets.all(1.0),
@@ -463,7 +468,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       if (oldIndex < newIndex) {
                         newIndex--;
                       }
-                      _killers!.insert(newIndex, _killers!.removeAt(oldIndex));
+                      data.killers!
+                          .insert(newIndex, data.killers!.removeAt(oldIndex));
                       refresh();
                     }),
                     children: killerPortraits)),
@@ -481,12 +487,12 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       }
 
                       if (killerName != '') {
-                        _killerPerks![killerName]!.remove(perkName);
+                        data.killerPerks![killerName]!.remove(perkName);
                       }
 
-                      if (!_perks!.contains(perkName)) {
-                        _perks!.add(perkName);
-                        _perks!.sort((a, b) => a.compareTo(b));
+                      if (!data.perks!.contains(perkName)) {
+                        data.perks!.add(perkName);
+                        data.perks!.sort((a, b) => a.compareTo(b));
                         refresh();
                       }
                     },
