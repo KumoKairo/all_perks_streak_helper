@@ -16,7 +16,7 @@ class CustomColors {
   static const Color fontColor = Color(0xffecf0f1);
 
   static const List<Color> accentColors = [
-    Color.fromARGB(255, 72, 39, 39),
+    CustomColors.itemsBackground,
     Color.fromARGB(255, 69, 35, 67),
     Color.fromARGB(255, 44, 84, 53),
     Color.fromARGB(255, 42, 84, 87),
@@ -250,6 +250,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
 
   void reset() async {
     initializePerksAndKillers();
+    widget.onColorLoaded(CustomColors.itemsBackground);
     refresh();
   }
 
