@@ -3,7 +3,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
 import 'package:otz_killer_perks/dataController.dart';
 import 'dart:io';
-import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'perksSearchDelegate.dart';
@@ -200,35 +199,11 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
 
   void menuPressed(int menuItem) {
     if (menuItem == 0) {
-      save();
+      data.save();
     } else if (menuItem == 1) {
       load();
     } else if (menuItem == 2) {
       reset();
-    }
-  }
-
-  Future<void> save() async {
-    var appDir = await getApplicationDocumentsDirectory();
-
-    String? outputFile = await FilePicker.platform.saveFile(
-      initialDirectory: appDir.path,
-      dialogTitle: 'Please select an output file:',
-      fileName: 'perks.save',
-    );
-
-    if (outputFile != null) {
-      var killers = data.killers!.join(" ");
-      var perks = data.perks!.join(" ");
-      String killerPerks = "";
-      for (var killerPerk in data.killerPerks!.entries) {
-        if (killerPerk.value.isNotEmpty) {
-          killerPerks += "${killerPerk.key}:${killerPerk.value.join(",")}-";
-        }
-      }
-      var file = File(outputFile);
-      await file
-          .writeAsString("$killers;$perks;$killerPerks;${data.accentColor}");
     }
   }
 
