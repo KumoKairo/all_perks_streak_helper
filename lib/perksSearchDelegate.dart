@@ -2,6 +2,10 @@ import 'package:flutter/material.dart';
 import 'main.dart';
 
 class PerkSearchDelegate extends SearchDelegate {
+  final Function(int?) onSearchDone;
+
+  PerkSearchDelegate({required this.onSearchDone});
+
   List<String> searchTerms = [
     "Apple",
     "Banana",
@@ -12,6 +16,11 @@ class PerkSearchDelegate extends SearchDelegate {
     "Pineapples",
     "Strawberries"
   ];
+
+  void onDone(BuildContext context, int? index) {
+    onSearchDone(index);
+    close(context, index);
+  }
 
   @override
   ThemeData appBarTheme(BuildContext context) {
@@ -41,9 +50,7 @@ class PerkSearchDelegate extends SearchDelegate {
   @override
   Widget? buildLeading(BuildContext context) {
     return IconButton(
-      onPressed: () {
-        close(context, null);
-      },
+      onPressed: () => onDone(context, null),
       icon: Icon(Icons.arrow_back),
     );
   }
@@ -61,10 +68,7 @@ class PerkSearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         var result = matchQuery[index];
         return ListTile(
-          onTap: () {
-            print(index);
-            close(context, null);
-          },
+          onTap: () => onDone(context, index),
           textColor: CustomColors.fontColor,
           tileColor: CustomColors.appBackground,
           title: Text(result),
@@ -86,10 +90,7 @@ class PerkSearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         var result = matchQuery[index];
         return ListTile(
-          onTap: () {
-            print(index);
-            close(context, null);
-          },
+          onTap: () => onDone(context, index),
           textColor: CustomColors.fontColor,
           tileColor: CustomColors.appBackground,
           title: Text(result),

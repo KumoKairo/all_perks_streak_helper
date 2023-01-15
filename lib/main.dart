@@ -53,6 +53,10 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     applyChangeColor();
   }
 
+  void onSearchPicked(int? perkIndex) {
+    print(perkIndex);
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -101,7 +105,10 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                 child: IconButton(
                   icon: const Icon(Icons.search),
                   onPressed: () => {
-                    showSearch(context: context, delegate: PerkSearchDelegate())
+                    showSearch(
+                        context: context,
+                        delegate:
+                            PerkSearchDelegate(onSearchDone: onSearchPicked))
                   },
                 )),
             Padding(
