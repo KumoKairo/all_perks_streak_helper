@@ -46,6 +46,11 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     setState(() {});
   }
 
+  void onColorLoaded(Color color) {
+    pickerColor = color;
+    applyChangeColor();
+  }
+
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
@@ -86,7 +91,8 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                 )),
           ],
         ),
-        body: KillersPerksViewWidget(key: perksKey),
+        body:
+            KillersPerksViewWidget(onColorLoaded: onColorLoaded, key: perksKey),
       ),
     );
   }
@@ -139,7 +145,10 @@ class ImagePathsData {
 }
 
 class KillersPerksViewWidget extends StatefulWidget {
-  const KillersPerksViewWidget({Key? key}) : super(key: key);
+  final Function(Color) onColorLoaded;
+
+  const KillersPerksViewWidget({required this.onColorLoaded, Key? key})
+      : super(key: key);
 
   @override
   State<KillersPerksViewWidget> createState() => _KillersPerksViewWidgetState();
@@ -231,6 +240,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
           .replaceAll("0x", "");
       var intAccentColor = int.parse(accentColor, radix: 16);
       _accentColor = Color(intAccentColor);
+      widget.onColorLoaded(_accentColor);
 
       refresh();
     } else {
