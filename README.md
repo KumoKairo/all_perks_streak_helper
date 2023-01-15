@@ -3,6 +3,7 @@
 Basic app for perks distribution
 
 Max 4 perks per killer
+Changing colors, saving and loading
 
 Perk duplication is not supported
 
