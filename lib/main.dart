@@ -5,6 +5,7 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
+import 'perksSearchDelegate.dart';
 
 void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
@@ -33,6 +34,7 @@ class AllPerksStreakHelper extends StatefulWidget {
 }
 
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
+  static const actionsPadding = EdgeInsets.only(right: 16.0);
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
   Color pickerColor = CustomColors.itemsBackground;
@@ -54,26 +56,37 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   @override
   Widget build(BuildContext context) {
     return MaterialApp(
+      themeMode: ThemeMode.light,
+      theme: ThemeData(
+          scaffoldBackgroundColor: CustomColors.appBackground,
+          appBarTheme:
+              AppBarTheme(backgroundColor: CustomColors.appBackground)),
       title: 'All perks streak helper',
       home: Scaffold(
         backgroundColor: CustomColors.appBackground,
         appBar: AppBar(
           backgroundColor: pickerColor,
           leading: PopupMenuButton(
+              color: CustomColors.appBackground,
               icon: const Icon(Icons.menu),
               itemBuilder: (context) {
                 return [
                   const PopupMenuItem<int>(
                     value: 0,
-                    child: Text("Save"),
+                    child: Text(
+                      "Save",
+                      style: TextStyle(color: CustomColors.fontColor),
+                    ),
                   ),
                   const PopupMenuItem<int>(
                     value: 1,
-                    child: Text("Load"),
+                    child: Text("Load",
+                        style: TextStyle(color: CustomColors.fontColor)),
                   ),
                   const PopupMenuItem<int>(
                     value: 2,
-                    child: Text("Reset"),
+                    child: Text("Reset",
+                        style: TextStyle(color: CustomColors.fontColor)),
                   ),
                 ];
               },
@@ -84,7 +97,15 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
               }),
           actions: [
             Padding(
-                padding: const EdgeInsets.only(right: 16.0),
+                padding: actionsPadding,
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => {
+                    showSearch(context: context, delegate: PerkSearchDelegate())
+                  },
+                )),
+            Padding(
+                padding: actionsPadding,
                 child: IconButton(
                   icon: const Icon(Icons.format_paint_rounded),
                   onPressed: () => _dialogBuilder(context),
