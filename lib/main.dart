@@ -16,14 +16,12 @@ class CustomColors {
   static const Color fontColor = Color(0xffecf0f1);
 
   static const List<Color> accentColors = [
-    Color(0xffcd6133),
-    Color(0xffb33939),
-    Color(0xff2c2c54),
-    Color(0xffe66767),
-    Color(0xff218c74),
-    Color(0xff227093),
-    Color(0xffcd6133),
-    Color(0xffcd6133),
+    Color.fromARGB(255, 72, 39, 39),
+    Color.fromARGB(255, 69, 35, 67),
+    Color.fromARGB(255, 44, 84, 53),
+    Color.fromARGB(255, 42, 84, 87),
+    Color.fromARGB(255, 45, 43, 86),
+    Color.fromARGB(255, 43, 57, 88),
   ];
 }
 
@@ -98,6 +96,10 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
+          insetPadding: EdgeInsets.symmetric(
+            horizontal: 50.0,
+            vertical: 100.0,
+          ),
           backgroundColor: CustomColors.appBackground,
           title: const Text(
             'Pick a color',
@@ -188,7 +190,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
         }
       }
       var file = File(outputFile);
-      await file.writeAsString("$killers;$perks;$killerPerks");
+      await file.writeAsString("$killers;$perks;$killerPerks;$_accentColor");
     }
   }
 
@@ -198,7 +200,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
       var file = File(loadFrom.files.single.path!);
       var contents = await file.readAsString();
       var split = contents.split(";");
-      if (split.length != 3) {
+      if (split.length != 4) {
         return null;
       }
 
@@ -222,6 +224,13 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
           }
         }
       }
+
+      var accentColor = split[3]
+          .replaceAll("Color(", "")
+          .replaceAll(")", "")
+          .replaceAll("0x", "");
+      var intAccentColor = int.parse(accentColor, radix: 16);
+      _accentColor = Color(intAccentColor);
 
       refresh();
     } else {
