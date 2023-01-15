@@ -17,17 +17,17 @@ class PerkSearchDelegate extends SearchDelegate {
   ThemeData appBarTheme(BuildContext context) {
     return ThemeData(
         scaffoldBackgroundColor: CustomColors.appBackground,
-        textTheme: TextTheme(
+        textTheme: const TextTheme(
           headline6: TextStyle(
             color: CustomColors.fontColor,
             fontSize: 18.0,
           ),
         ),
-        inputDecorationTheme: InputDecorationTheme(
+        inputDecorationTheme: const InputDecorationTheme(
           border: InputBorder.none,
           hintStyle: TextStyle(color: CustomColors.buttonsColor),
         ),
-        appBarTheme: AppBarTheme(
+        appBarTheme: const AppBarTheme(
           foregroundColor: CustomColors.fontColor,
           backgroundColor: CustomColors.appBackground,
         ));
