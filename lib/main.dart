@@ -9,9 +9,22 @@ import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
 class CustomColors {
-  static const Color background = Color.fromARGB(255, 47, 53, 66);
-  static const Color border = Color.fromARGB(255, 87, 96, 111);
-  static const Color appBackground = Color.fromARGB(255, 149, 165, 166);
+  static const Color appBackground = Color.fromARGB(255, 32, 34, 36);
+  static const Color buttonsColor = Color.fromARGB(255, 83, 91, 99);
+  static const Color itemsBackground = Color.fromARGB(255, 43, 45, 48);
+  static const Color itemsBorderColor = Color.fromARGB(255, 22, 23, 24);
+  static const Color fontColor = Color(0xffecf0f1);
+
+  static const List<Color> accentColors = [
+    Color(0xffcd6133),
+    Color(0xffb33939),
+    Color(0xff2c2c54),
+    Color(0xffe66767),
+    Color(0xff218c74),
+    Color(0xff227093),
+    Color(0xffcd6133),
+    Color(0xffcd6133),
+  ];
 }
 
 class AllPerksStreakHelper extends StatefulWidget {
@@ -24,7 +37,7 @@ class AllPerksStreakHelper extends StatefulWidget {
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
-  Color pickerColor = CustomColors.background;
+  Color pickerColor = CustomColors.itemsBackground;
 
   void changeColor(Color color) {
     pickerColor = color;
@@ -40,6 +53,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     return MaterialApp(
       title: 'All perks streak helper',
       home: Scaffold(
+        backgroundColor: CustomColors.appBackground,
         appBar: AppBar(
           backgroundColor: pickerColor,
           leading: PopupMenuButton(
@@ -84,14 +98,24 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          title: const Text('Pick a color!'),
+          backgroundColor: CustomColors.appBackground,
+          title: const Text(
+            'Pick a color',
+            style: TextStyle(color: CustomColors.fontColor),
+          ),
           content: SingleChildScrollView(
               child: BlockPicker(
             pickerColor: pickerColor,
             onColorChanged: changeColor,
+            availableColors: CustomColors.accentColors,
           )),
           actions: [
             ElevatedButton(
+              style: const ButtonStyle(
+                  foregroundColor:
+                      MaterialStatePropertyAll<Color>(CustomColors.fontColor),
+                  backgroundColor: MaterialStatePropertyAll<Color>(
+                      CustomColors.buttonsColor)),
               child: const Text('Got it'),
               onPressed: () {
                 applyChangeColor();
@@ -120,7 +144,7 @@ class KillersPerksViewWidget extends StatefulWidget {
 }
 
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
-  Color _accentColor = CustomColors.background;
+  Color _accentColor = CustomColors.itemsBackground;
 
   List<String>? _killers;
   List<String>? _perks;
@@ -295,7 +319,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
                       color: _accentColor,
-                      border: Border.all(color: CustomColors.border, width: 2)),
+                      border: Border.all(
+                          color: CustomColors.itemsBorderColor, width: 2)),
                   margin: const EdgeInsets.all(1.0),
                   child: Image(image: AssetImage(killerPerk)),
                 );
@@ -333,7 +358,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 builder: (context, _, __) => Container(
                   decoration: BoxDecoration(
                       shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
                       color: _accentColor),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
@@ -352,7 +378,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
                     color: _accentColor,
-                    border: Border.all(color: CustomColors.border, width: 2)),
+                    border: Border.all(
+                        color: CustomColors.itemsBorderColor, width: 2)),
                 margin: const EdgeInsets.all(1.0),
                 child: Image(image: AssetImage(perk)),
               );
@@ -363,9 +390,25 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                   child: perkIcon));
             }
           }
+
+          Widget proxyDecorator(
+              Widget child, int index, Animation<double> animation) {
+            return AnimatedBuilder(
+              animation: animation,
+              builder: (BuildContext context, Widget? child) {
+                return Material(
+                  color: Colors.transparent,
+                  child: child,
+                );
+              },
+              child: child,
+            );
+          }
+
           return Row(children: [
             Expanded(
                 child: ReorderableListView(
+                    proxyDecorator: proxyDecorator,
                     buildDefaultDragHandles: false,
                     onReorder: ((oldIndex, newIndex) {
                       // moving down
