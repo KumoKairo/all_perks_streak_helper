@@ -4,8 +4,9 @@ import 'package:flutter/services.dart';
 import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
+import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 
-void main() => runApp(AllPerksStreakHelper());
+void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
 class CustomColors {
   static const Color background = Color.fromARGB(255, 47, 53, 66);
@@ -14,6 +15,13 @@ class CustomColors {
 }
 
 class AllPerksStreakHelper extends StatelessWidget {
+  Color pickerColor = Color(0xff443a49);
+  Color currentColor = Color(0xff443a49);
+
+  void changeColor(Color color) {
+    pickerColor = color;
+  }
+
   AllPerksStreakHelper({Key? key}) : super(key: key);
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
@@ -47,9 +55,43 @@ class AllPerksStreakHelper extends StatelessWidget {
                   perksKey.currentState?.menuPressed(value);
                 }
               }),
+          actions: [
+            Padding(
+                padding: EdgeInsets.only(right: 16.0),
+                child: IconButton(
+                  icon: Icon(Icons.format_paint_rounded),
+                  onPressed: () => _dialogBuilder(context),
+                )),
+          ],
         ),
         body: KillersPerksViewWidget(key: perksKey),
       ),
+    );
+  }
+
+  Future<void> _dialogBuilder(BuildContext context) {
+    return showDialog<void>(
+      context: context,
+      builder: (BuildContext context) {
+        return AlertDialog(
+          title: const Text('Pick a color!'),
+          content: SingleChildScrollView(
+              child: BlockPicker(
+            pickerColor: currentColor,
+            onColorChanged: changeColor,
+          )),
+          actions: <Widget>[
+            ElevatedButton(
+              child: const Text('Got it'),
+              onPressed: () {
+                print("color changed to $pickerColor");
+                // setState(() => currentColor = pickerColor);
+                Navigator.of(context).pop();
+              },
+            ),
+          ],
+        );
+      },
     );
   }
 }
