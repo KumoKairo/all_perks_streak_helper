@@ -18,6 +18,7 @@ class PerkPathToReadableName {
 class DataController extends GetxController {
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
 
+  late Function onColorUpdated;
   BuildContext? lastContext;
   Timer? _lastHighlightTimer;
 
@@ -32,6 +33,10 @@ class DataController extends GetxController {
   Map<String, List<String>>? killerPerks;
 
   List<PerkPathToReadableName>? allAvailablePerks;
+
+  void forceRefresh() {
+    onColorUpdated();
+  }
 
   Future<void> initializePerksAndKillers({bool force = false}) async {
     if (!force && perks != null && killers != null) {
@@ -159,6 +164,7 @@ class DataController extends GetxController {
   void reset() async {
     initializePerksAndKillers(force: true);
     accentColor = CustomColors.appBackground;
+    forceRefresh();
   }
 
   void selectSearchedPerk(String readablePerk) {

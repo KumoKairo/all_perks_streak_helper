@@ -64,6 +64,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   @override
   Widget build(BuildContext context) {
     data.lastContext = context;
+    data.onColorUpdated = () => {setState((() => {}))};
     return MaterialApp(
       themeMode: ThemeMode.light,
       theme: ThemeData(
