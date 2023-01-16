@@ -34,6 +34,8 @@ class AllPerksStreakHelper extends StatefulWidget {
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   final data = Get.put(DataController());
 
+  bool isChecked = false;
+
   _AllPerksStreakHelperState() {
     data.addListener(() => setState(() {}));
   }
@@ -42,8 +44,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
   void changeColor(Color color) {
-    data.accentColor = color;
-    applyChangeColor();
+    data.changeAccentColor(color);
   }
 
   void applyChangeColor() {
@@ -76,7 +77,9 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
         appBar: AppBar(
           backgroundColor: data.accentColor,
           leading: PopupMenuButton(
-              color: CustomColors.appBackground,
+              color: data.shouldColorEverything.value
+                  ? data.accentColor
+                  : CustomColors.appBackground,
               icon: const Icon(Icons.menu),
               itemBuilder: (context) {
                 return [
@@ -130,40 +133,22 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   }
 
   Future<void> _dialogBuilder(BuildContext context) {
+    Color getColor(Set<MaterialState> states) {
+      const Set<MaterialState> interactiveStates = <MaterialState>{
+        MaterialState.pressed,
+        MaterialState.hovered,
+        MaterialState.focused,
+      };
+      if (states.any(interactiveStates.contains)) {
+        return Colors.blue;
+      }
+      return Colors.red;
+    }
+
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return AlertDialog(
-          insetPadding: const EdgeInsets.symmetric(
-            horizontal: 50.0,
-            vertical: 100.0,
-          ),
-          backgroundColor: CustomColors.appBackground,
-          title: const Text(
-            'Pick a color',
-            style: TextStyle(color: CustomColors.fontColor),
-          ),
-          content: SingleChildScrollView(
-              child: BlockPicker(
-            pickerColor: data.accentColor,
-            onColorChanged: changeColor,
-            availableColors: CustomColors.accentColors,
-          )),
-          actions: [
-            ElevatedButton(
-              style: const ButtonStyle(
-                  foregroundColor:
-                      MaterialStatePropertyAll<Color>(CustomColors.fontColor),
-                  backgroundColor: MaterialStatePropertyAll<Color>(
-                      CustomColors.buttonsColor)),
-              child: const Text('Got it'),
-              onPressed: () {
-                applyChangeColor();
-                Navigator.of(context).pop();
-              },
-            ),
-          ],
-        );
+        return CustomDialog();
       },
     );
   }
@@ -213,7 +198,9 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       height: 88.0,
                       decoration: BoxDecoration(
                           shape: BoxShape.circle,
-                          color: CustomColors.appBackground,
+                          color: data.shouldColorEverything.value
+                              ? data.accentColor
+                              : CustomColors.appBackground,
                           border: Border.all(
                               color:
                                   killerPerk == data.highlightedPerkPath.value
@@ -264,7 +251,9 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       shape: BoxShape.rectangle,
                       borderRadius:
                           const BorderRadius.all(Radius.circular(8.0)),
-                      color: CustomColors.appBackground),
+                      color: data.shouldColorEverything.value
+                          ? data.accentColor
+                          : CustomColors.appBackground),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(children: [
@@ -281,7 +270,9 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                     height: 88.0,
                     decoration: BoxDecoration(
                         shape: BoxShape.circle,
-                        color: CustomColors.appBackground,
+                        color: data.shouldColorEverything.value
+                            ? data.accentColor
+                            : CustomColors.appBackground,
                         border: Border.all(
                             color: perk == data.highlightedPerkPath.value
                                 ? CustomColors.perkHighlight
@@ -360,5 +351,82 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                         )))
           ]);
         }));
+  }
+}
+
+class CustomDialog extends StatefulWidget {
+  @override
+  _CustomDialogState createState() => _CustomDialogState();
+}
+
+class _CustomDialogState extends State<CustomDialog> {
+  final data = Get.find<DataController>();
+
+  bool isChecked = false;
+
+  void changeColor(Color color) {
+    data.changeAccentColor(color);
+  }
+
+  void applyChangeColor() {
+    setState(() {});
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    Color getCheckboxFillColor(Set<MaterialState> states) {
+      return CustomColors.fontColor;
+    }
+
+    Color getCheckboxOverlayColor(Set<MaterialState> states) {
+      return Colors.transparent;
+    }
+
+    return AlertDialog(
+      insetPadding: const EdgeInsets.symmetric(
+        horizontal: 50.0,
+        vertical: 100.0,
+      ),
+      backgroundColor: CustomColors.appBackground,
+      title: const Text(
+        'Pick a color',
+        style: TextStyle(color: CustomColors.fontColor),
+      ),
+      content: SingleChildScrollView(
+          child: BlockPicker(
+        pickerColor: data.accentColor,
+        onColorChanged: changeColor,
+        availableColors: CustomColors.accentColors,
+      )),
+      actions: [
+        const Text(
+          "Color everything",
+          style: TextStyle(color: CustomColors.fontColor, fontSize: 16),
+        ),
+        Obx(() => Checkbox(
+            value: data.shouldColorEverything.value,
+            checkColor: CustomColors.itemsBorderColor,
+            activeColor: CustomColors.appBackground,
+            overlayColor:
+                MaterialStateProperty.resolveWith(getCheckboxOverlayColor),
+            fillColor: MaterialStateProperty.resolveWith(getCheckboxFillColor),
+            onChanged: (value) => setState(() {
+                  data.changeColorSettingsAndSave(value!);
+                }))),
+        const Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0)),
+        ElevatedButton(
+          style: const ButtonStyle(
+              foregroundColor:
+                  MaterialStatePropertyAll<Color>(CustomColors.fontColor),
+              backgroundColor:
+                  MaterialStatePropertyAll<Color>(CustomColors.buttonsColor)),
+          child: const Text('Got it'),
+          onPressed: () {
+            applyChangeColor();
+            Navigator.of(context).pop();
+          },
+        ),
+      ],
+    );
   }
 }

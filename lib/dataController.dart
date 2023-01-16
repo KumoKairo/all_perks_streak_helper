@@ -7,6 +7,7 @@ import 'main.dart';
 import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
+import 'package:shared_preferences/shared_preferences.dart';
 
 class PerkPathToReadableName {
   String path;
@@ -16,7 +17,10 @@ class PerkPathToReadableName {
 }
 
 class DataController extends GetxController {
+  static const String shouldColorEverythingStoreKey = "color_everything";
+
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
+  late SharedPreferences _prefs;
 
   late Function onColorUpdated;
   BuildContext? lastContext;
@@ -25,6 +29,7 @@ class DataController extends GetxController {
   // no RxColor unfortunately
   Color accentColor = CustomColors.appBackground;
   var highlightedPerkPath = "".obs;
+  var shouldColorEverything = false.obs;
   final portraitsScrollController = ScrollController();
   final perksGridScrollController = ScrollController();
 
@@ -35,7 +40,21 @@ class DataController extends GetxController {
   List<PerkPathToReadableName>? allAvailablePerks;
 
   void forceRefresh() {
-    onColorUpdated();
+    update();
+  }
+
+  void changeColorSettingsAndSave(bool value) {
+    shouldColorEverything.value = value;
+    _prefs.setBool(shouldColorEverythingStoreKey, value);
+    update();
+  }
+
+  @override
+  void onReady() async {
+    _prefs = await SharedPreferences.getInstance();
+    var storedColorEverything = _prefs.getBool(shouldColorEverythingStoreKey);
+    shouldColorEverything.value = storedColorEverything ?? false;
+    super.onReady();
   }
 
   Future<void> initializePerksAndKillers({bool force = false}) async {
@@ -158,6 +177,8 @@ class DataController extends GetxController {
           .replaceAll("0x", "");
       var intAccentColor = int.parse(accentColor, radix: 16);
       this.accentColor = Color(intAccentColor);
+
+      update();
     }
   }
 
@@ -203,5 +224,10 @@ class DataController extends GetxController {
         () => {
               highlightedPerkPath.value = "",
             });
+  }
+
+  void changeAccentColor(Color color) {
+    accentColor = color;
+    update();
   }
 }
