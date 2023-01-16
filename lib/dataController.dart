@@ -18,9 +18,14 @@ class PerkPathToReadableName {
 class DataController extends GetxController {
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
 
+  BuildContext? lastContext;
+  Timer? _lastHighlightTimer;
+
   // no RxColor unfortunately
   Color accentColor = CustomColors.appBackground;
   var highlightedPerkPath = "".obs;
+  final portraitsScrollController = ScrollController();
+  final perksGridScrollController = ScrollController();
 
   List<String>? killers;
   List<String>? perks;
@@ -156,8 +161,45 @@ class DataController extends GetxController {
     accentColor = CustomColors.appBackground;
   }
 
-  void selectSearchedPerk(int index) {
-    highlightedPerkPath.value = allAvailablePerks![index].path;
-    Timer(const Duration(seconds: 8), () => {highlightedPerkPath.value = ""});
+  void selectSearchedPerk(String readablePerk) {
+    for (var perk in allAvailablePerks!) {
+      if (perk.readableName == readablePerk) {
+        highlightedPerkPath.value = perk.path;
+      }
+    }
+
+    for (int i = 0; i < perks!.length; i++) {
+      if (perks![i] == highlightedPerkPath.value) {
+        var roundedPosition = i - (i % 8);
+        var offset = perksGridScrollController.position.maxScrollExtent *
+            (roundedPosition / perks!.length);
+        perksGridScrollController.animateTo(offset,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutSine);
+      }
+    }
+
+    var selectedKillerIndex = -1;
+    for (var currentKillerPerks in killerPerks!.entries) {
+      selectedKillerIndex++;
+      if (currentKillerPerks.value.contains(highlightedPerkPath.value)) {
+        var offset = portraitsScrollController.position.maxScrollExtent *
+            (selectedKillerIndex / killers!.length);
+
+        print(offset);
+        portraitsScrollController.animateTo(offset,
+            duration: const Duration(milliseconds: 500),
+            curve: Curves.easeOutSine);
+      }
+    }
+
+    _lastHighlightTimer?.cancel();
+    _lastHighlightTimer = Timer(
+        const Duration(seconds: 8),
+        () => {
+              highlightedPerkPath.value = "",
+              // centerPerkGridOn = -1,
+              // centerKillersColumnOn = -1
+            });
   }
 }

@@ -54,7 +54,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     applyChangeColor();
   }
 
-  void onSearchPicked(int? perkIndex) {
+  void onSearchPicked(String? perkIndex) {
     if (perkIndex != null) {
       data.selectSearchedPerk(perkIndex);
       setState(() {});
@@ -63,6 +63,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
 
   @override
   Widget build(BuildContext context) {
+    data.lastContext = context;
     return MaterialApp(
       themeMode: ThemeMode.light,
       theme: ThemeData(
@@ -315,6 +316,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
           return Row(children: [
             Expanded(
                 child: ReorderableListView(
+                    scrollController: data.portraitsScrollController,
                     proxyDecorator: proxyDecorator,
                     buildDefaultDragHandles: false,
                     onReorder: ((oldIndex, newIndex) {
@@ -351,7 +353,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       }
                     },
                     builder: (context, _, __) => GridView.count(
-                          controller: ScrollController(),
+                          controller: data.perksGridScrollController,
                           crossAxisCount: 8,
                           children: perkIcons,
                         )))

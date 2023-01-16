@@ -6,13 +6,13 @@ import 'dataController.dart';
 class PerkSearchDelegate extends SearchDelegate {
   final data = Get.find<DataController>();
 
-  final Function(int?) onSearchDone;
+  final Function(String?) onSearchDone;
 
   PerkSearchDelegate({required this.onSearchDone});
 
-  void onDone(BuildContext context, int? index) {
-    onSearchDone(index);
-    close(context, index);
+  void onDone(BuildContext context, String? perk) {
+    onSearchDone(perk);
+    close(context, perk);
   }
 
   @override
@@ -61,7 +61,7 @@ class PerkSearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         var result = matchQuery[index];
         return ListTile(
-          onTap: () => onDone(context, index),
+          onTap: () => onDone(context, result),
           textColor: CustomColors.fontColor,
           tileColor: CustomColors.appBackground,
           title: Text(result),
@@ -83,7 +83,7 @@ class PerkSearchDelegate extends SearchDelegate {
       itemBuilder: (context, index) {
         var result = matchQuery[index];
         return ListTile(
-          onTap: () => onDone(context, index),
+          onTap: () => onDone(context, result),
           textColor: CustomColors.fontColor,
           tileColor: CustomColors.appBackground,
           title: Text(result),
