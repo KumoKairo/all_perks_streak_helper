@@ -179,14 +179,13 @@ class DataController extends GetxController {
       }
     }
 
-    var selectedKillerIndex = -1;
+    var selectedKillerIndex = 0;
     for (var currentKillerPerks in killerPerks!.entries) {
       selectedKillerIndex++;
       if (currentKillerPerks.value.contains(highlightedPerkPath.value)) {
         var offset = portraitsScrollController.position.maxScrollExtent *
             (selectedKillerIndex / killers!.length);
 
-        print(offset);
         portraitsScrollController.animateTo(offset,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutSine);
