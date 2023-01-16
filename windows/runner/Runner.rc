@@ -90,12 +90,12 @@ BEGIN
         BLOCK "040904e4"
         BEGIN
             VALUE "CompanyName", "kumo.kairo" "\0"
-            VALUE "FileDescription", "otz_killer_perks" "\0"
+            VALUE "FileDescription", "all_perks_streak_helper" "\0"
             VALUE "FileVersion", VERSION_AS_STRING "\0"
-            VALUE "InternalName", "otz_killer_perks" "\0"
+            VALUE "InternalName", "all_perks_streak_helper" "\0"
             VALUE "LegalCopyright", "Copyright (C) 2022 KumoKairo. All rights reserved." "\0"
-            VALUE "OriginalFilename", "otz_killer_perks.exe" "\0"
-            VALUE "ProductName", "otz_killer_perks" "\0"
+            VALUE "OriginalFilename", "all_perks_streak_helper.exe" "\0"
+            VALUE "ProductName", "all_perks_streak_helper" "\0"
             VALUE "ProductVersion", VERSION_AS_STRING "\0"
         END
     END
