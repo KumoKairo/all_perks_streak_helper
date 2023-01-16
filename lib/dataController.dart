@@ -185,12 +185,11 @@ class DataController extends GetxController {
       }
     }
 
-    var selectedKillerIndex = 0;
     for (var currentKillerPerks in killerPerks!.entries) {
-      selectedKillerIndex++;
+      var selectedKillerIndex = killers!.indexOf(currentKillerPerks.key);
       if (currentKillerPerks.value.contains(highlightedPerkPath.value)) {
         var offset = portraitsScrollController.position.maxScrollExtent *
-            (selectedKillerIndex / killers!.length);
+            (selectedKillerIndex / (killers!.length - 1));
 
         portraitsScrollController.animateTo(offset,
             duration: const Duration(milliseconds: 500),
@@ -200,7 +199,7 @@ class DataController extends GetxController {
 
     _lastHighlightTimer?.cancel();
     _lastHighlightTimer = Timer(
-        const Duration(seconds: 8),
+        const Duration(seconds: 4),
         () => {
               highlightedPerkPath.value = "",
             });
