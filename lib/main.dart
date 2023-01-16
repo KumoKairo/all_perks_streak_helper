@@ -1,5 +1,5 @@
 import 'package:flutter/material.dart';
-import 'package:otz_killer_perks/dataController.dart';
+import 'package:all_perks_streak_helper/dataController.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'perksSearchDelegate.dart';
 import 'package:get/get.dart';
