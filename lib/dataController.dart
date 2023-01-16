@@ -172,7 +172,7 @@ class DataController extends GetxController {
       if (perks![i] == highlightedPerkPath.value) {
         var roundedPosition = i - (i % 8);
         var offset = perksGridScrollController.position.maxScrollExtent *
-            (roundedPosition / perks!.length);
+            (roundedPosition / (perks!.length - 8));
         perksGridScrollController.animateTo(offset,
             duration: const Duration(milliseconds: 500),
             curve: Curves.easeOutSine);
@@ -197,8 +197,6 @@ class DataController extends GetxController {
         const Duration(seconds: 8),
         () => {
               highlightedPerkPath.value = "",
-              // centerPerkGridOn = -1,
-              // centerKillersColumnOn = -1
             });
   }
 }
