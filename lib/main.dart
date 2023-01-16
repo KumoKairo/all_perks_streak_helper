@@ -129,7 +129,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       context: context,
       builder: (BuildContext context) {
         return AlertDialog(
-          insetPadding: EdgeInsets.symmetric(
+          insetPadding: const EdgeInsets.symmetric(
             horizontal: 50.0,
             vertical: 100.0,
           ),

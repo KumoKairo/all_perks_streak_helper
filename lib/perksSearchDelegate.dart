@@ -1,21 +1,14 @@
 import 'package:flutter/material.dart';
 import 'main.dart';
+import 'package:get/get.dart';
+import 'dataController.dart';
 
 class PerkSearchDelegate extends SearchDelegate {
+  final data = Get.find<DataController>();
+
   final Function(int?) onSearchDone;
 
   PerkSearchDelegate({required this.onSearchDone});
-
-  List<String> searchTerms = [
-    "Apple",
-    "Banana",
-    "Mango",
-    "Pear",
-    "Watermelons",
-    "Blueberries",
-    "Pineapples",
-    "Strawberries"
-  ];
 
   void onDone(BuildContext context, int? index) {
     onSearchDone(index);
@@ -58,7 +51,7 @@ class PerkSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var fruit in searchTerms) {
+    for (var fruit in data.allAvailablePerks!) {
       if (fruit.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(fruit);
       }
@@ -80,7 +73,7 @@ class PerkSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var fruit in searchTerms) {
+    for (var fruit in data.allAvailablePerks!) {
       if (fruit.toLowerCase().contains(query.toLowerCase())) {
         matchQuery.add(fruit);
       }

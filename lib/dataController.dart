@@ -8,10 +8,14 @@ import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
 class DataController extends GetxController {
+  final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
+
   Color accentColor = CustomColors.appBackground;
   List<String>? killers;
   List<String>? perks;
   Map<String, List<String>>? killerPerks;
+
+  List<String>? allAvailablePerks;
 
   Future<void> initializePerksAndKillers({bool force = false}) async {
     if (!force && perks != null && killers != null) {
@@ -23,9 +27,26 @@ class DataController extends GetxController {
     killers = manifestMap.keys
         .where((key) => key.contains('killers/') && !key.contains('.DS_Store'))
         .toList();
+
     perks = manifestMap.keys
         .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
         .toList();
+
+    // same thing twice because we need a copy of full list of all perks
+    allAvailablePerks = manifestMap.keys
+        .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
+        .toList();
+
+    for (int i = 0; i < allAvailablePerks!.length; i++) {
+      var perkPathName = allAvailablePerks![i];
+      perkPathName = perkPathName
+          .replaceAll("assets/images/perks/", "")
+          .replaceAll("IconPerks_", "")
+          .replaceAll(".webp", "");
+      var readableName = perkPathName.split(beforeCapitalLetterSplit).join(" ");
+      allAvailablePerks![i] =
+          readableName[0].toUpperCase() + readableName.substring(1);
+    }
 
     killerPerks = {};
     for (int i = 0; i < killers!.length; i++) {
