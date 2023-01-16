@@ -51,9 +51,9 @@ class PerkSearchDelegate extends SearchDelegate {
   @override
   Widget buildResults(BuildContext context) {
     List<String> matchQuery = [];
-    for (var fruit in data.allAvailablePerks!) {
-      if (fruit.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(fruit);
+    for (var perk in data.allAvailablePerks!) {
+      if (perk.readableName.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(perk.readableName);
       }
     }
     return ListView.builder(
@@ -73,9 +73,9 @@ class PerkSearchDelegate extends SearchDelegate {
   @override
   Widget buildSuggestions(BuildContext context) {
     List<String> matchQuery = [];
-    for (var fruit in data.allAvailablePerks!) {
-      if (fruit.toLowerCase().contains(query.toLowerCase())) {
-        matchQuery.add(fruit);
+    for (var perk in data.allAvailablePerks!) {
+      if (perk.readableName.toLowerCase().contains(query.toLowerCase())) {
+        matchQuery.add(perk.readableName);
       }
     }
     return ListView.builder(

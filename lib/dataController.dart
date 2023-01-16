@@ -7,15 +7,26 @@ import 'package:path_provider/path_provider.dart';
 import 'package:file_picker/file_picker.dart';
 import 'dart:io';
 
+class PerkPathToReadableName {
+  String path;
+  String readableName;
+
+  PerkPathToReadableName({required this.path, required this.readableName});
+}
+
 class DataController extends GetxController {
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
 
+  // no RxColor unfortunately
   Color accentColor = CustomColors.appBackground;
+
+  var lastSearchedPerk = -1.obs;
+
   List<String>? killers;
   List<String>? perks;
   Map<String, List<String>>? killerPerks;
 
-  List<String>? allAvailablePerks;
+  List<PerkPathToReadableName>? allAvailablePerks;
 
   Future<void> initializePerksAndKillers({bool force = false}) async {
     if (!force && perks != null && killers != null) {
@@ -32,20 +43,19 @@ class DataController extends GetxController {
         .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
         .toList();
 
-    // same thing twice because we need a copy of full list of all perks
-    allAvailablePerks = manifestMap.keys
-        .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
-        .toList();
+    allAvailablePerks = List.empty(growable: true);
 
-    for (int i = 0; i < allAvailablePerks!.length; i++) {
-      var perkPathName = allAvailablePerks![i];
-      perkPathName = perkPathName
+    for (int i = 0; i < perks!.length; i++) {
+      var perkPathName = perks![i];
+      var readableName = perkPathName
           .replaceAll("assets/images/perks/", "")
           .replaceAll("IconPerks_", "")
           .replaceAll(".webp", "");
-      var readableName = perkPathName.split(beforeCapitalLetterSplit).join(" ");
-      allAvailablePerks![i] =
-          readableName[0].toUpperCase() + readableName.substring(1);
+      readableName = readableName.split(beforeCapitalLetterSplit).join(" ");
+      readableName = readableName[0].toUpperCase() + readableName.substring(1);
+
+      allAvailablePerks!.add(PerkPathToReadableName(
+          path: perkPathName, readableName: readableName));
     }
 
     killerPerks = {};
