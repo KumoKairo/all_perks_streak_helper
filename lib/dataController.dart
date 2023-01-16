@@ -1,6 +1,7 @@
 import 'package:flutter/services.dart';
 import 'package:flutter/material.dart';
 import 'dart:convert';
+import 'dart:async';
 import 'package:get/get.dart';
 import 'main.dart';
 import 'package:path_provider/path_provider.dart';
@@ -19,8 +20,7 @@ class DataController extends GetxController {
 
   // no RxColor unfortunately
   Color accentColor = CustomColors.appBackground;
-
-  var lastSearchedPerk = -1.obs;
+  var highlightedPerkPath = "".obs;
 
   List<String>? killers;
   List<String>? perks;
@@ -154,6 +154,10 @@ class DataController extends GetxController {
   void reset() async {
     initializePerksAndKillers(force: true);
     accentColor = CustomColors.appBackground;
-    refresh();
+  }
+
+  void selectSearchedPerk(int index) {
+    highlightedPerkPath.value = allAvailablePerks![index].path;
+    Timer(const Duration(seconds: 8), () => {highlightedPerkPath.value = ""});
   }
 }

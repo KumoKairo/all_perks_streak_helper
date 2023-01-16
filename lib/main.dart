@@ -7,6 +7,7 @@ import 'package:get/get.dart';
 void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
 class CustomColors {
+  static const Color perkHighlight = Color.fromARGB(255, 152, 48, 34);
   static const Color appBackground = Color.fromARGB(255, 32, 34, 36);
   static const Color buttonsColor = Color.fromARGB(255, 83, 91, 99);
   static const Color itemsBackground = Color.fromARGB(255, 43, 45, 48);
@@ -54,7 +55,10 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   }
 
   void onSearchPicked(int? perkIndex) {
-    print(perkIndex);
+    if (perkIndex != null) {
+      data.selectSearchedPerk(perkIndex);
+      setState(() {});
+    }
   }
 
   @override
@@ -62,9 +66,8 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     return MaterialApp(
       themeMode: ThemeMode.light,
       theme: ThemeData(
-          scaffoldBackgroundColor: CustomColors.appBackground,
-          appBarTheme:
-              AppBarTheme(backgroundColor: CustomColors.appBackground)),
+        scaffoldBackgroundColor: CustomColors.appBackground,
+      ),
       title: 'All perks streak helper',
       home: Scaffold(
         backgroundColor: CustomColors.appBackground,
@@ -203,17 +206,24 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
               var killerPerks = data.killerPerks![killer]!;
               var killerPerkWidgets = List<Widget>.empty(growable: true);
               for (var killerPerk in killerPerks) {
-                var killerPerkWidget = Container(
-                  width: 88.0,
-                  height: 88.0,
-                  decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: CustomColors.appBackground,
-                      border: Border.all(
-                          color: CustomColors.itemsBorderColor, width: 2)),
-                  margin: const EdgeInsets.all(1.0),
-                  child: Image(image: AssetImage(killerPerk)),
-                );
+                var killerPerkWidget = Obx(() => Container(
+                      width: 88.0,
+                      height: 88.0,
+                      decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          color: CustomColors.appBackground,
+                          border: Border.all(
+                              color:
+                                  killerPerk == data.highlightedPerkPath.value
+                                      ? CustomColors.perkHighlight
+                                      : CustomColors.itemsBorderColor,
+                              width:
+                                  killerPerk == data.highlightedPerkPath.value
+                                      ? 4
+                                      : 2)),
+                      margin: const EdgeInsets.all(1.0),
+                      child: Image(image: AssetImage(killerPerk)),
+                    ));
                 killerPerkWidgets.add(Draggable<String>(
                     data: '$killer $killerPerk',
                     feedback: killerPerkWidget,
@@ -250,7 +260,8 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       border: Border.all(
                           color: CustomColors.itemsBorderColor, width: 2.0),
                       shape: BoxShape.rectangle,
-                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      borderRadius:
+                          const BorderRadius.all(Radius.circular(8.0)),
                       color: CustomColors.appBackground),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
@@ -263,17 +274,22 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
               ));
             }
             for (var perk in data.perks!) {
-              var perkIcon = Container(
-                width: 88.0,
-                height: 88.0,
-                decoration: BoxDecoration(
-                    shape: BoxShape.circle,
-                    color: CustomColors.appBackground,
-                    border: Border.all(
-                        color: CustomColors.itemsBorderColor, width: 2)),
-                margin: const EdgeInsets.all(1.0),
-                child: Image(image: AssetImage(perk)),
-              );
+              var perkIcon = Obx(() => Container(
+                    width: 88.0,
+                    height: 88.0,
+                    decoration: BoxDecoration(
+                        shape: BoxShape.circle,
+                        color: CustomColors.appBackground,
+                        border: Border.all(
+                            color: perk == data.highlightedPerkPath.value
+                                ? CustomColors.perkHighlight
+                                : CustomColors.itemsBorderColor,
+                            width: perk == data.highlightedPerkPath.value
+                                ? 4
+                                : 2)),
+                    margin: const EdgeInsets.all(1.0),
+                    child: Image(image: AssetImage(perk)),
+                  ));
               perkIcons.add(Draggable<String>(
                   data: perk,
                   feedback: perkIcon,
