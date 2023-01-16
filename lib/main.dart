@@ -1,9 +1,5 @@
-import 'dart:convert';
 import 'package:flutter/material.dart';
-import 'package:flutter/services.dart';
 import 'package:otz_killer_perks/dataController.dart';
-import 'dart:io';
-import 'package:file_picker/file_picker.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
 import 'perksSearchDelegate.dart';
 import 'package:get/get.dart';
@@ -28,8 +24,6 @@ class CustomColors {
 }
 
 class AllPerksStreakHelper extends StatefulWidget {
-  final data = Get.put(DataController());
-
   AllPerksStreakHelper({Key? key}) : super(key: key);
 
   @override
@@ -37,22 +31,21 @@ class AllPerksStreakHelper extends StatefulWidget {
 }
 
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
+  final data = Get.put(DataController());
+
   static const actionsPadding = EdgeInsets.only(right: 16.0);
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
-  Color pickerColor = CustomColors.itemsBackground;
-
   void changeColor(Color color) {
-    pickerColor = color;
+    data.accentColor = color;
+    applyChangeColor();
   }
 
   void applyChangeColor() {
-    perksKey.currentState?.changeColors(pickerColor);
     setState(() {});
   }
 
   void onColorLoaded(Color color) {
-    pickerColor = color;
     applyChangeColor();
   }
 
@@ -72,7 +65,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       home: Scaffold(
         backgroundColor: CustomColors.appBackground,
         appBar: AppBar(
-          backgroundColor: pickerColor,
+          backgroundColor: data.accentColor,
           leading: PopupMenuButton(
               color: CustomColors.appBackground,
               icon: const Icon(Icons.menu),
@@ -122,8 +115,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                 )),
           ],
         ),
-        body:
-            KillersPerksViewWidget(onColorLoaded: onColorLoaded, key: perksKey),
+        body: KillersPerksViewWidget(key: perksKey),
       ),
     );
   }
@@ -144,7 +136,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
           ),
           content: SingleChildScrollView(
               child: BlockPicker(
-            pickerColor: pickerColor,
+            pickerColor: data.accentColor,
             onColorChanged: changeColor,
             availableColors: CustomColors.accentColors,
           )),
@@ -168,18 +160,8 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   }
 }
 
-class ImagePathsData {
-  List<String> killersImagePaths;
-  List<String> perksImagePaths;
-
-  ImagePathsData(this.killersImagePaths, this.perksImagePaths);
-}
-
 class KillersPerksViewWidget extends StatefulWidget {
-  final Function(Color) onColorLoaded;
-
-  const KillersPerksViewWidget({required this.onColorLoaded, Key? key})
-      : super(key: key);
+  const KillersPerksViewWidget({Key? key}) : super(key: key);
 
   @override
   State<KillersPerksViewWidget> createState() => _KillersPerksViewWidgetState();
@@ -188,156 +170,32 @@ class KillersPerksViewWidget extends StatefulWidget {
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
   final data = Get.find<DataController>();
 
-  List<String>? _storedKillers;
-  List<String>? _storedPerks;
-  Map<String, List<String>>? _storedKillerPerks;
-
-  void changeColors(Color newColor) {
-    data.accentColor = newColor;
-    refresh();
-  }
-
-  void menuPressed(int menuItem) {
+  Future<void> menuPressed(int menuItem) async {
     if (menuItem == 0) {
       data.save();
     } else if (menuItem == 1) {
-      load();
-    } else if (menuItem == 2) {
-      reset();
-    }
-  }
-
-  Future<String?> load() async {
-    FilePickerResult? loadFrom = await FilePicker.platform.pickFiles();
-    if (loadFrom != null) {
-      var file = File(loadFrom.files.single.path!);
-      var contents = await file.readAsString();
-      var split = contents.split(";");
-      if (split.length != 4) {
-        return null;
-      }
-
-      _storedKillers = split[0].split(" ");
-      _storedPerks = split[1].split(" ");
-      _storedKillerPerks = {};
-
-      var killerPerksRaw = split[2];
-      for (var killerPerkRaw in killerPerksRaw.split("-")) {
-        if (killerPerkRaw.isNotEmpty) {
-          var killerPerks = killerPerkRaw.split(":");
-          var killer = killerPerks[0];
-          var perks = killerPerks[1].split(',');
-          if (perks.isNotEmpty) {
-            for (var actualPerk in perks) {
-              if (_storedKillerPerks![killer] == null) {
-                _storedKillerPerks![killer] = List.empty(growable: true);
-              }
-              _storedKillerPerks![killer]!.add(actualPerk);
-            }
-          }
-        }
-      }
-
-      var accentColor = split[3]
-          .replaceAll("Color(", "")
-          .replaceAll(")", "")
-          .replaceAll("0x", "");
-      print(split[3]);
-      print(split[3]);
-      print(accentColor);
-      print(accentColor);
-      var intAccentColor = int.parse(accentColor, radix: 16);
-      data.accentColor = Color(intAccentColor);
-      widget.onColorLoaded(data.accentColor);
-
+      await data.load();
       refresh();
-    } else {
-      return null;
+    } else if (menuItem == 2) {
+      data.reset();
+      refresh();
     }
-  }
-
-  void reset() async {
-    initializePerksAndKillers();
-    widget.onColorLoaded(CustomColors.itemsBackground);
-    refresh();
   }
 
   Future refresh() async {
     setState(() {});
   }
 
-  Future<ImagePathsData> _getAllImagePaths() async {
-    if (data.killers != null && data.perks != null && _storedKillers == null) {
-      return ImagePathsData(data.killers!, data.perks!);
-    }
-
-    await initializePerksAndKillers();
-
-    if (_storedKillers != null && _storedPerks != null) {
-      final newKillers =
-          data.killers!.where((element) => !_storedKillers!.contains(element));
-
-      final newPerks =
-          data.perks!.where((element) => !_storedPerks!.contains(element));
-
-      data.killers = _storedKillers;
-      data.killers!.addAll(newKillers);
-      data.perks = _storedPerks;
-      data.perks!.addAll(newPerks);
-    }
-
-    for (var killer in data.killers!) {
-      if (_storedKillerPerks != null) {
-        var storedKillerPerks = _storedKillerPerks![killer];
-        if (storedKillerPerks != null && storedKillerPerks.isNotEmpty) {
-          for (var storedKillerPerk in storedKillerPerks) {
-            if (data.perks!.contains(storedKillerPerk)) {
-              data.perks!.remove(storedKillerPerk);
-            }
-            if (!data.killerPerks![killer]!.contains(storedKillerPerk)) {
-              data.killerPerks![killer]!.add(storedKillerPerk);
-            }
-          }
-        }
-      }
-    }
-
-    _storedKillers = null;
-    _storedPerks = null;
-    _storedKillerPerks = null;
-
-    return ImagePathsData(data.killers!, data.perks!);
-  }
-
-  Future<void> initializePerksAndKillers() async {
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    data.killers = manifestMap.keys
-        .where((key) => key.contains('killers/') && !key.contains('.DS_Store'))
-        .toList();
-    data.perks = manifestMap.keys
-        .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
-        .toList();
-
-    data.killerPerks = {};
-    for (int i = 0; i < data.killers!.length; i++) {
-      data.killerPerks![data.killers![i]] = List.empty(growable: true);
-    }
-  }
-
   @override
   Widget build(BuildContext context) {
     return FutureBuilder(
-        future: _getAllImagePaths(),
+        future: data.getAllImagePaths(),
         builder: ((context, snapshot) {
           List<Widget> killerPortraits = List<Widget>.empty(growable: true);
           List<Widget> perkIcons = List<Widget>.empty(growable: true);
-          if (snapshot.hasData) {
-            var paths = snapshot.data as ImagePathsData;
-            for (int index = 0;
-                index < paths.killersImagePaths.length;
-                index++) {
-              var killer = paths.killersImagePaths[index];
+          if (data.killers != null && data.perks != null) {
+            for (int index = 0; index < data.killers!.length; index++) {
+              var killer = data.killers![index];
               var killerPerks = data.killerPerks![killer]!;
               var killerPerkWidgets = List<Widget>.empty(growable: true);
               for (var killerPerk in killerPerks) {
@@ -346,7 +204,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                   height: 88.0,
                   decoration: BoxDecoration(
                       shape: BoxShape.circle,
-                      color: data.accentColor,
+                      color: CustomColors.appBackground,
                       border: Border.all(
                           color: CustomColors.itemsBorderColor, width: 2)),
                   margin: const EdgeInsets.all(1.0),
@@ -385,10 +243,11 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 },
                 builder: (context, _, __) => Container(
                   decoration: BoxDecoration(
+                      border: Border.all(
+                          color: CustomColors.itemsBorderColor, width: 2.0),
                       shape: BoxShape.rectangle,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(8.0)),
-                      color: data.accentColor),
+                      borderRadius: BorderRadius.all(Radius.circular(8.0)),
+                      color: CustomColors.appBackground),
                   margin:
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(children: [
@@ -399,13 +258,13 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                 ),
               ));
             }
-            for (var perk in paths.perksImagePaths) {
+            for (var perk in data.perks!) {
               var perkIcon = Container(
                 width: 88.0,
                 height: 88.0,
                 decoration: BoxDecoration(
                     shape: BoxShape.circle,
-                    color: data.accentColor,
+                    color: CustomColors.appBackground,
                     border: Border.all(
                         color: CustomColors.itemsBorderColor, width: 2)),
                 margin: const EdgeInsets.all(1.0),
