@@ -122,7 +122,7 @@ class DataController extends GetxController {
 
   void reset() async {
     initializePerksAndKillers(force: true);
-    // widget.onColorLoaded(CustomColors.itemsBackground);
+    accentColor = CustomColors.appBackground;
     refresh();
   }
 }

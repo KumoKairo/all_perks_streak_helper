@@ -33,6 +33,10 @@ class AllPerksStreakHelper extends StatefulWidget {
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   final data = Get.put(DataController());
 
+  _AllPerksStreakHelperState() {
+    data.addListener(() => setState(() {}));
+  }
+
   static const actionsPadding = EdgeInsets.only(right: 16.0);
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
