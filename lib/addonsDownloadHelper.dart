@@ -35,8 +35,6 @@ class AddonsDownloadHelper {
     var wikiTables =
         document.getElementsByClassName(killersContainerClass).first.children;
 
-    // print(wikiTables[2].text);
-
     var addonsIndex = -1;
     for (var i = 0; i < wikiTables.length; i++) {
       if (wikiTables[i].text.contains("Add-ons for ")) {
