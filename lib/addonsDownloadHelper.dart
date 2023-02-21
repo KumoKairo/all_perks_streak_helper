@@ -7,10 +7,12 @@ import 'package:path_provider/path_provider.dart';
 class AddonsDownloadHelper {
   static const String wikiRootPage = 'https://deadbydaylight.fandom.com';
   static const String rootKillersPage = '/wiki/Killers';
+  static const String addonsRootFolder = 'assets\\images\\addons';
 
   static const String killersContainerClass = "mw-parser-output";
   static const String killerSpecificWikiTable = "wikitable";
   static const String killerAddonImageClass = "image";
+  static const String killerInfoboxClass = "infoboxtable";
 
   static void downloadToTempDir() {
     get(Uri.parse(wikiRootPage + rootKillersPage)).then(parseRootPage);
@@ -45,6 +47,28 @@ class AddonsDownloadHelper {
 
     if (addonsIndex != -1) {
       var addonRows = wikiTables[addonsIndex + 1].children.first.children;
+
+      var killerPortraitFileName = "${addonsRootFolder}\\${killerName}.png";
+      var lazyLoadPortrait =
+          document.getElementsByClassName(killerInfoboxClass);
+
+      var killerPortraitImageUrl = lazyLoadPortrait
+          .first
+          .children
+          .first
+          .children[1]
+          .children
+          .first
+          .children
+          .first
+          .attributes
+          .entries
+          .first
+          .value;
+
+      get(Uri.parse(killerPortraitImageUrl))
+          .then((image) => saveImage(image.bodyBytes, killerPortraitFileName));
+
       for (var i = 1; i < addonRows.length; i++) {
         var addonImageUrl = addonRows[i]
             .children[0]
@@ -61,15 +85,16 @@ class AddonsDownloadHelper {
             .split("_")[1]
             .split(".")[0];
 
-        var fileName = "assets/images/addons/${killerName}/${addonName}.png";
+        var addonFileName =
+            "${addonsRootFolder}/${killerName}/${addonName}.png";
 
         get(addonUri)
-            .then((image) => saveAddonImage(image.bodyBytes, fileName));
+            .then((image) => saveImage(image.bodyBytes, addonFileName));
       }
     }
   }
 
-  static void saveAddonImage(image, fileName) {
+  static void saveImage(image, fileName) {
     var file = File(fileName);
     file.createSync(recursive: true);
     file.writeAsBytesSync(image);

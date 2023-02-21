@@ -16,12 +16,13 @@ class PerkPathToReadableName {
   PerkPathToReadableName({required this.path, required this.readableName});
 }
 
-class DataController extends GetxController {
+class DataController extends GetxController with SingleGetTickerProviderMixin {
   static const String shouldColorEverythingStoreKey = "color_everything";
 
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
   late SharedPreferences _prefs;
 
+  late TabController tabController;
   late Function onColorUpdated;
   BuildContext? lastContext;
   Timer? _lastHighlightTimer;
@@ -47,6 +48,12 @@ class DataController extends GetxController {
     shouldColorEverything.value = value;
     _prefs.setBool(shouldColorEverythingStoreKey, value);
     update();
+  }
+
+  @override
+  void onInit() {
+    super.onInit();
+    tabController = TabController(length: 2, vsync: this);
   }
 
   @override

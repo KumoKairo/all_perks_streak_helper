@@ -1,4 +1,6 @@
 import 'package:all_perks_streak_helper/addonsDownloadHelper.dart';
+import 'package:all_perks_streak_helper/addonsTab.dart';
+import 'package:context_menus/context_menus.dart';
 import 'package:flutter/material.dart';
 import 'package:all_perks_streak_helper/dataController.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -67,76 +69,91 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
   Widget build(BuildContext context) {
     data.lastContext = context;
     data.onColorUpdated = () => {setState((() => {}))};
-    return MaterialApp(
+    return ContextMenuOverlay(
+        child: MaterialApp(
       themeMode: ThemeMode.light,
       theme: ThemeData(
         scaffoldBackgroundColor: CustomColors.appBackground,
       ),
       title: 'All perks streak helper',
       home: Scaffold(
-        backgroundColor: CustomColors.appBackground,
-        appBar: AppBar(
-          backgroundColor: data.accentColor,
-          leading: PopupMenuButton(
-              color: data.shouldColorEverything.value
-                  ? data.accentColor
-                  : CustomColors.appBackground,
-              icon: const Icon(Icons.menu),
-              itemBuilder: (context) {
-                return [
-                  const PopupMenuItem<int>(
-                    value: 0,
-                    child: Text(
-                      "Save",
-                      style: TextStyle(color: CustomColors.fontColor),
+          backgroundColor: CustomColors.appBackground,
+          appBar: AppBar(
+            bottom: TabBar(controller: data.tabController, tabs: [
+              Tab(icon: Icon(Icons.build)),
+              Tab(icon: Icon(Icons.lens_blur)),
+            ]),
+            backgroundColor: data.accentColor,
+            leading: PopupMenuButton(
+                color: data.shouldColorEverything.value
+                    ? data.accentColor
+                    : CustomColors.appBackground,
+                icon: const Icon(
+                  Icons.menu,
+                  color: CustomColors.fontColor,
+                ),
+                itemBuilder: (context) {
+                  return [
+                    const PopupMenuItem<int>(
+                      value: 0,
+                      child: Text(
+                        "Save",
+                        style: TextStyle(color: CustomColors.fontColor),
+                      ),
                     ),
-                  ),
-                  const PopupMenuItem<int>(
-                    value: 1,
-                    child: Text("Load",
-                        style: TextStyle(color: CustomColors.fontColor)),
-                  ),
-                  const PopupMenuItem<int>(
-                    value: 2,
-                    child: Text("Reset",
-                        style: TextStyle(color: CustomColors.fontColor)),
-                  )
-                ];
-              },
-              onSelected: (value) {
-                if (value != null && value is int) {
-                  perksKey.currentState?.menuPressed(value);
-                }
-              }),
-          actions: [
-            Padding(
-                padding: actionsPadding,
-                child: IconButton(
-                  icon: const Icon(Icons.download),
-                  onPressed: () => AddonsDownloadHelper.downloadToTempDir(),
-                )),
-            Padding(
-                padding: actionsPadding,
-                child: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () => {
-                    showSearch(
-                        context: context,
-                        delegate:
-                            PerkSearchDelegate(onSearchDone: onSearchPicked))
-                  },
-                )),
-            Padding(
-                padding: actionsPadding,
-                child: IconButton(
-                  icon: const Icon(Icons.format_paint_rounded),
-                  onPressed: () => _dialogBuilder(context),
-                )),
-          ],
-        ),
-        body: KillersPerksViewWidget(key: perksKey),
-      ),
-    );
+                    const PopupMenuItem<int>(
+                      value: 1,
+                      child: Text("Load",
+                          style: TextStyle(color: CustomColors.fontColor)),
+                    ),
+                    const PopupMenuItem<int>(
+                      value: 2,
+                      child: Text("Reset",
+                          style: TextStyle(color: CustomColors.fontColor)),
+                    )
+                  ];
+                },
+                onSelected: (value) {
+                  if (value != null && value is int) {
+                    perksKey.currentState?.menuPressed(value);
+                  }
+                }),
+            actions: [
+              Padding(
+                  padding: actionsPadding,
+                  child: IconButton(
+                    icon: const Icon(Icons.download),
+                    onPressed: () => AddonsDownloadHelper.downloadToTempDir(),
+                  )),
+              Padding(
+                  padding: actionsPadding,
+                  child: IconButton(
+                    icon: const Icon(Icons.search),
+                    onPressed: () => {
+                      showSearch(
+                          context: context,
+                          delegate:
+                              PerkSearchDelegate(onSearchDone: onSearchPicked))
+                    },
+                  )),
+              Padding(
+                  padding: actionsPadding,
+                  child: IconButton(
+                    icon: const Icon(Icons.format_paint_rounded),
+                    onPressed: () => _dialogBuilder(context),
+                  )),
+            ],
+          ),
+          body: TabBarView(
+            controller: data.tabController,
+            children: [
+              KillersPerksViewWidget(key: perksKey),
+              AddonsTab(),
+            ],
+          )
+          //KillersPerksViewWidget(key: perksKey),
+          ),
+    ));
   }
 
   Future<void> _dialogBuilder(BuildContext context) {
