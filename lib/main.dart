@@ -100,12 +100,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                     value: 2,
                     child: Text("Reset",
                         style: TextStyle(color: CustomColors.fontColor)),
-                  ),
-                  const PopupMenuItem<int>(
-                    value: 3,
-                    child: Text("Download addons",
-                        style: TextStyle(color: CustomColors.fontColor)),
-                  ),
+                  )
                 ];
               },
               onSelected: (value) {
@@ -114,6 +109,12 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                 }
               }),
           actions: [
+            Padding(
+                padding: actionsPadding,
+                child: IconButton(
+                  icon: const Icon(Icons.download),
+                  onPressed: () => AddonsDownloadHelper.downloadToTempDir(),
+                )),
             Padding(
                 padding: actionsPadding,
                 child: IconButton(
@@ -184,10 +185,6 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     else if (menuItem == 2) {
       data.reset();
       refresh();
-    }
-    // download addons
-    else if (menuItem == 3) {
-      AddonsDownloadHelper.downloadToTempDir();
     }
   }
 

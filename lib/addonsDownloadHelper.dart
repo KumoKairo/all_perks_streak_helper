@@ -23,14 +23,15 @@ class AddonsDownloadHelper {
     var killers = killersContainer[0].children[21];
     for (var killer in killers.children) {
       var killerPage = killer.children[0].attributes.entries.first.value;
+
+      var killerName = killer.text.split(' - ').last.replaceAll(' ', '_');
       var fullUrl = wikiRootPage + killerPage;
-      get(Uri.parse(wikiRootPage + killerPage)).then(parseKillerSpecificPage);
+      get(Uri.parse(fullUrl))
+          .then((res) => parseKillerSpecificPage(res, killerName));
     }
   }
 
-  static void parseKillerSpecificPage(Response response) async {
-    var killer = response.request!.url.toString().split('/').last;
-
+  static void parseKillerSpecificPage(Response response, killerName) async {
     var document = parse(response.body);
     var wikiTables =
         document.getElementsByClassName(killersContainerClass).first.children;
@@ -60,7 +61,7 @@ class AddonsDownloadHelper {
             .split("_")[1]
             .split(".")[0];
 
-        var fileName = "assets/images/addons/${killer}/${addonName}.png";
+        var fileName = "assets/images/addons/${killerName}/${addonName}.png";
 
         get(addonUri)
             .then((image) => saveAddonImage(image.bodyBytes, fileName));
