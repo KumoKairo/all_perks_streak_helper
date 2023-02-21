@@ -1,3 +1,4 @@
+import 'package:all_perks_streak_helper/addonsDownloadHelper.dart';
 import 'package:flutter/material.dart';
 import 'package:all_perks_streak_helper/dataController.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -100,6 +101,11 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
                     child: Text("Reset",
                         style: TextStyle(color: CustomColors.fontColor)),
                   ),
+                  const PopupMenuItem<int>(
+                    value: 3,
+                    child: Text("Download addons",
+                        style: TextStyle(color: CustomColors.fontColor)),
+                  ),
                 ];
               },
               onSelected: (value) {
@@ -165,14 +171,23 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
   final data = Get.find<DataController>();
 
   Future<void> menuPressed(int menuItem) async {
+    // save
     if (menuItem == 0) {
       data.save();
-    } else if (menuItem == 1) {
+    }
+    // load
+    else if (menuItem == 1) {
       await data.load();
       refresh();
-    } else if (menuItem == 2) {
+    }
+    // reset
+    else if (menuItem == 2) {
       data.reset();
       refresh();
+    }
+    // download addons
+    else if (menuItem == 3) {
+      AddonsDownloadHelper.downloadToTempDir();
     }
   }
 
