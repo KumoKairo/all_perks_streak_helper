@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:all_perks_streak_helper/addonsDownloadHelper.dart';
+import 'package:all_perks_streak_helper/main.dart';
 import 'package:context_menus/context_menus.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -13,6 +14,7 @@ class AddonsTab extends StatefulWidget {
 
 class AddonsController extends GetxController {
   Map<String, List<Widget>> addons = {};
+  RxMap<String, Color> addonColors = RxMap();
 
   @override
   void onInit() {
@@ -46,23 +48,65 @@ class AddonsTabState extends State<AddonsTab> {
       var addonImages = dirPath
           .listSync()
           .toList()
+          .map((img) => img.path)
           .map((img) => ContextMenuRegion(
               contextMenu: GenericContextMenu(
+                autoClose: true,
                 buttonConfigs: [
                   ContextMenuButtonConfig(
-                    "View image in browser",
-                    onPressed: () => print("view"),
+                    "S",
+                    icon: const Icon(
+                      Icons.circle,
+                      color: CustomColors.tierSColor,
+                    ),
+                    onPressed: () =>
+                        changeAddonColor(img, CustomColors.tierSColor),
                   ),
                   ContextMenuButtonConfig(
-                    "Copy image path",
-                    onPressed: () => print("copy"),
+                    "A",
+                    icon: const Icon(
+                      Icons.circle,
+                      color: CustomColors.tierAColor,
+                    ),
+                    onPressed: () =>
+                        changeAddonColor(img, CustomColors.tierAColor),
+                  ),
+                  ContextMenuButtonConfig(
+                    "B",
+                    icon: const Icon(
+                      Icons.circle,
+                      color: CustomColors.tierBColor,
+                    ),
+                    onPressed: () =>
+                        changeAddonColor(img, CustomColors.tierBColor),
+                  ),
+                  ContextMenuButtonConfig(
+                    "C",
+                    icon: const Icon(
+                      Icons.circle,
+                      color: CustomColors.tierCColor,
+                    ),
+                    onPressed: () =>
+                        changeAddonColor(img, CustomColors.tierCColor),
+                  ),
+                  ContextMenuButtonConfig(
+                    "D",
+                    icon: const Icon(
+                      Icons.circle,
+                      color: CustomColors.tierDColor,
+                    ),
+                    onPressed: () =>
+                        changeAddonColor(img, CustomColors.tierDColor),
                   )
                 ],
               ),
-              child: SizedBox(
+              child: Obx(() => Container(
+                  color: controller.addonColors.containsKey(img)
+                      ? controller.addonColors[img]
+                      : Colors.transparent,
                   key: ValueKey(img),
                   height: 88.0,
-                  child: Image.file(File(img.path)))))
+                  child: Image.file(File(img))))))
           .toList();
 
       controller.addons[killerName] = addonImages;
@@ -89,5 +133,9 @@ class AddonsTabState extends State<AddonsTab> {
     }
 
     return killerAddons;
+  }
+
+  void changeAddonColor(String img, Color color) {
+    controller.addonColors[img] = color;
   }
 }

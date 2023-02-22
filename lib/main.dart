@@ -10,12 +10,18 @@ import 'package:get/get.dart';
 void main() => runApp(MaterialApp(home: AllPerksStreakHelper()));
 
 class CustomColors {
-  static const Color perkHighlight = Color.fromARGB(255, 152, 48, 34);
-  static const Color appBackground = Color.fromARGB(255, 32, 34, 36);
-  static const Color buttonsColor = Color.fromARGB(255, 83, 91, 99);
-  static const Color itemsBackground = Color.fromARGB(255, 43, 45, 48);
-  static const Color itemsBorderColor = Color.fromARGB(255, 22, 23, 24);
-  static const Color fontColor = Color(0xffecf0f1);
+  static const Color perkHighlight = Color(0xFF983022);
+  static const Color appBackground = Color(0xFF202224);
+  static const Color buttonsColor = Color(0xFF535B63);
+  static const Color itemsBackground = Color(0xFF2B2D30);
+  static const Color itemsBorderColor = Color(0xFF161718);
+  static const Color fontColor = Color(0xFFECF0F1);
+
+  static const Color tierSColor = Color(0xAAFF7F7F);
+  static const Color tierAColor = Color(0xAAFFBF7F);
+  static const Color tierBColor = Color(0xAAFFDF7F);
+  static const Color tierCColor = Color(0xAAFFFF7F);
+  static const Color tierDColor = Color(0xAABFFF7F);
 
   static const List<Color> accentColors = [
     CustomColors.itemsBackground,
@@ -77,82 +83,71 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       ),
       title: 'All perks streak helper',
       home: Scaffold(
-          backgroundColor: CustomColors.appBackground,
-          appBar: AppBar(
-            bottom: TabBar(controller: data.tabController, tabs: [
-              Tab(icon: Icon(Icons.build)),
-              Tab(icon: Icon(Icons.lens_blur)),
-            ]),
-            backgroundColor: data.accentColor,
-            leading: PopupMenuButton(
-                color: data.shouldColorEverything.value
-                    ? data.accentColor
-                    : CustomColors.appBackground,
-                icon: const Icon(
-                  Icons.menu,
-                  color: CustomColors.fontColor,
-                ),
-                itemBuilder: (context) {
-                  return [
-                    const PopupMenuItem<int>(
-                      value: 0,
-                      child: Text(
-                        "Save",
-                        style: TextStyle(color: CustomColors.fontColor),
-                      ),
+        backgroundColor: CustomColors.appBackground,
+        appBar: AppBar(
+          backgroundColor: data.accentColor,
+          leading: PopupMenuButton(
+              color: data.shouldColorEverything.value
+                  ? data.accentColor
+                  : CustomColors.appBackground,
+              icon: const Icon(
+                Icons.menu,
+                color: CustomColors.fontColor,
+              ),
+              itemBuilder: (context) {
+                return [
+                  const PopupMenuItem<int>(
+                    value: 0,
+                    child: Text(
+                      "Save",
+                      style: TextStyle(color: CustomColors.fontColor),
                     ),
-                    const PopupMenuItem<int>(
-                      value: 1,
-                      child: Text("Load",
-                          style: TextStyle(color: CustomColors.fontColor)),
-                    ),
-                    const PopupMenuItem<int>(
-                      value: 2,
-                      child: Text("Reset",
-                          style: TextStyle(color: CustomColors.fontColor)),
-                    )
-                  ];
-                },
-                onSelected: (value) {
-                  if (value != null && value is int) {
-                    perksKey.currentState?.menuPressed(value);
-                  }
-                }),
-            actions: [
-              Padding(
-                  padding: actionsPadding,
-                  child: IconButton(
-                    icon: const Icon(Icons.download),
-                    onPressed: () => AddonsDownloadHelper.downloadToTempDir(),
-                  )),
-              Padding(
-                  padding: actionsPadding,
-                  child: IconButton(
-                    icon: const Icon(Icons.search),
-                    onPressed: () => {
-                      showSearch(
-                          context: context,
-                          delegate:
-                              PerkSearchDelegate(onSearchDone: onSearchPicked))
-                    },
-                  )),
-              Padding(
-                  padding: actionsPadding,
-                  child: IconButton(
-                    icon: const Icon(Icons.format_paint_rounded),
-                    onPressed: () => _dialogBuilder(context),
-                  )),
-            ],
-          ),
-          body: TabBarView(
-            controller: data.tabController,
-            children: [
-              KillersPerksViewWidget(key: perksKey),
-              AddonsTab(),
-            ],
-          )
-          //KillersPerksViewWidget(key: perksKey),
-          ),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 1,
+                    child: Text("Load",
+                        style: TextStyle(color: CustomColors.fontColor)),
+                  ),
+                  const PopupMenuItem<int>(
+                    value: 2,
+                    child: Text("Reset",
+                        style: TextStyle(color: CustomColors.fontColor)),
+                  )
+                ];
+              },
+              onSelected: (value) {
+                if (value != null && value is int) {
+                  perksKey.currentState?.menuPressed(value);
+                }
+              }),
+          actions: [
+            Padding(
+                padding: actionsPadding,
+                child: IconButton(
+                  icon: const Icon(Icons.download),
+                  onPressed: () => AddonsDownloadHelper.downloadToTempDir(),
+                )),
+            Padding(
+                padding: actionsPadding,
+                child: IconButton(
+                  icon: const Icon(Icons.search),
+                  onPressed: () => {
+                    showSearch(
+                        context: context,
+                        delegate:
+                            PerkSearchDelegate(onSearchDone: onSearchPicked))
+                  },
+                )),
+            Padding(
+                padding: actionsPadding,
+                child: IconButton(
+                  icon: const Icon(Icons.format_paint_rounded),
+                  onPressed: () => _dialogBuilder(context),
+                )),
+          ],
+        ),
+        body: AddonsTab(),
+      ),
     ));
   }
 
