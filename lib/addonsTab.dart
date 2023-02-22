@@ -16,6 +16,14 @@ class AddonsTab extends StatefulWidget {
 }
 
 class AddonsController extends GetxController {
+  RxList<Color> tierColors = RxList([
+    Color(0xFFFF7F7F),
+    Color(0xFFFFBF7F),
+    Color(0xFFFFDF7F),
+    Color(0xFFFFFF7F),
+    Color(0xFFBFFF7F)
+  ]);
+
   RxMap<String, RxList<String>> addonsMapping = RxMap();
   RxMap<String, String> addonColors = RxMap();
 
@@ -43,7 +51,10 @@ class AddonsController extends GetxController {
       var colors = json.encode(addonColors);
       var order = json.encode(addonsMapping);
 
-      var save = "${colors}\n\n${order}";
+      var tierColorsString =
+          tierColors.map((color) => color.value.toString()).join(";");
+
+      var save = "${colors}\n\n${order}\n\n${tierColorsString}";
 
       var file = File(outputFile);
       file.create(recursive: true);
@@ -60,6 +71,7 @@ class AddonsController extends GetxController {
       var contents = file.readAsStringSync().split("\n\n");
       var colors = json.decode(contents[0]) as Map<String, dynamic>;
       var order = json.decode(contents[1]) as Map<String, dynamic>;
+      var tierColorsString = contents[2].split(";");
 
       for (var entry in colors.entries) {
         addonColors[entry.key] = entry.value as String;
@@ -75,6 +87,12 @@ class AddonsController extends GetxController {
 
         for (var addon in addons) {
           addonsMapping[killer]!.add(addon as String);
+        }
+      }
+
+      if (tierColorsString.length == tierColors.length) {
+        for (var i = 0; i < tierColorsString.length; i++) {
+          tierColors[i] = Color(int.parse(tierColorsString[i]));
         }
       }
     }
@@ -99,6 +117,10 @@ class AddonsController extends GetxController {
       reset();
       refresh();
     }
+  }
+
+  void changeTierColor(Color color, int tier) {
+    tierColors[tier] = color;
   }
 
   Future<String?> safeLoadFilePicker() async {
@@ -157,42 +179,42 @@ class AddonsTabState extends State<AddonsTab> {
                 buttonConfigs: [
                   ContextMenuButtonConfig(
                     "S",
-                    icon: const Icon(
-                      Icons.circle,
-                      color: CustomColors.tierSColor,
-                    ),
+                    icon: Obx(() => Icon(
+                          Icons.circle,
+                          color: controller.tierColors[0],
+                        )),
                     onPressed: () => changeAddonColor(img, "S"),
                   ),
                   ContextMenuButtonConfig(
                     "A",
-                    icon: const Icon(
-                      Icons.circle,
-                      color: CustomColors.tierAColor,
-                    ),
+                    icon: Obx(() => Icon(
+                          Icons.circle,
+                          color: controller.tierColors[1],
+                        )),
                     onPressed: () => changeAddonColor(img, "A"),
                   ),
                   ContextMenuButtonConfig(
                     "B",
-                    icon: const Icon(
-                      Icons.circle,
-                      color: CustomColors.tierBColor,
-                    ),
+                    icon: Obx(() => Icon(
+                          Icons.circle,
+                          color: controller.tierColors[2],
+                        )),
                     onPressed: () => changeAddonColor(img, "B"),
                   ),
                   ContextMenuButtonConfig(
                     "C",
-                    icon: const Icon(
-                      Icons.circle,
-                      color: CustomColors.tierCColor,
-                    ),
+                    icon: Obx(() => Icon(
+                          Icons.circle,
+                          color: controller.tierColors[3],
+                        )),
                     onPressed: () => changeAddonColor(img, "C"),
                   ),
                   ContextMenuButtonConfig(
                     "D",
-                    icon: const Icon(
-                      Icons.circle,
-                      color: CustomColors.tierDColor,
-                    ),
+                    icon: Obx(() => Icon(
+                          Icons.circle,
+                          color: controller.tierColors[4],
+                        )),
                     onPressed: () => changeAddonColor(img, "D"),
                   )
                 ],
@@ -236,15 +258,15 @@ class AddonsTabState extends State<AddonsTab> {
   Color tierToColor(String tier) {
     switch (tier) {
       case "S":
-        return CustomColors.tierSColor;
+        return controller.tierColors[0];
       case "A":
-        return CustomColors.tierAColor;
+        return controller.tierColors[1];
       case "B":
-        return CustomColors.tierBColor;
+        return controller.tierColors[2];
       case "C":
-        return CustomColors.tierCColor;
+        return controller.tierColors[3];
       case "D":
-        return CustomColors.tierDColor;
+        return controller.tierColors[4];
     }
 
     return Colors.transparent;

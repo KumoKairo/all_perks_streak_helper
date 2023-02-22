@@ -17,12 +17,6 @@ class CustomColors {
   static const Color itemsBorderColor = Color(0xFF161718);
   static const Color fontColor = Color(0xFFECF0F1);
 
-  static const Color tierSColor = Color(0xAAFF7F7F);
-  static const Color tierAColor = Color(0xAAFFBF7F);
-  static const Color tierBColor = Color(0xAAFFDF7F);
-  static const Color tierCColor = Color(0xAAFFFF7F);
-  static const Color tierDColor = Color(0xAABFFF7F);
-
   static const List<Color> accentColors = [
     CustomColors.itemsBackground,
     Color.fromARGB(255, 69, 35, 67),
@@ -131,17 +125,6 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
             Padding(
                 padding: actionsPadding,
                 child: IconButton(
-                  icon: const Icon(Icons.search),
-                  onPressed: () => {
-                    showSearch(
-                        context: context,
-                        delegate:
-                            PerkSearchDelegate(onSearchDone: onSearchPicked))
-                  },
-                )),
-            Padding(
-                padding: actionsPadding,
-                child: IconButton(
                   icon: const Icon(Icons.format_paint_rounded),
                   onPressed: () => _dialogBuilder(context),
                 )),
@@ -168,7 +151,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
     return showDialog<void>(
       context: context,
       builder: (BuildContext context) {
-        return CustomDialog();
+        return CustomColorPickerDialogue();
       },
     );
   }
@@ -211,19 +194,23 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
   }
 }
 
-class CustomDialog extends StatefulWidget {
+class CustomColorPickerDialogue extends StatefulWidget {
   @override
-  _CustomDialogState createState() => _CustomDialogState();
+  _CustomColorPickerDialogueState createState() =>
+      _CustomColorPickerDialogueState();
 }
 
-class _CustomDialogState extends State<CustomDialog> {
-  final data = Get.find<DataController>();
+class _CustomColorPickerDialogueState extends State<CustomColorPickerDialogue> {
+  final oldData = Get.find<DataController>();
+  final addonsData = Get.find<AddonsController>();
 
   bool isChecked = false;
 
-  void changeColor(Color color) {
-    data.changeAccentColor(color);
+  void changeBgColor(Color color) {
+    oldData.changeAccentColor(color);
   }
+
+  void changeTierlistColor(Color color, String tierlist) {}
 
   void applyChangeColor() {
     setState(() {});
@@ -240,37 +227,32 @@ class _CustomDialogState extends State<CustomDialog> {
     }
 
     return AlertDialog(
-      insetPadding: const EdgeInsets.symmetric(
-        horizontal: 50.0,
-        vertical: 100.0,
-      ),
+      insetPadding: EdgeInsets.zero,
       backgroundColor: CustomColors.appBackground,
       title: const Text(
         'Pick a color',
         style: TextStyle(color: CustomColors.fontColor),
       ),
-      content: SingleChildScrollView(
-          child: BlockPicker(
-        pickerColor: data.accentColor,
-        onColorChanged: changeColor,
-        availableColors: CustomColors.accentColors,
-      )),
+      content: Container(
+          width: 250,
+          height: 100,
+          child: ListView(
+            shrinkWrap: true,
+            controller: ScrollController(),
+            children: [
+              getTierColorPicker("S", 0),
+              getTierColorPicker("A", 1),
+              getTierColorPicker("B", 2),
+              getTierColorPicker("C", 3),
+              getTierColorPicker("D", 4),
+              BlockPicker(
+                pickerColor: oldData.accentColor,
+                onColorChanged: changeBgColor,
+                availableColors: CustomColors.accentColors,
+              ),
+            ],
+          )),
       actions: [
-        const Text(
-          "Color everything",
-          style: TextStyle(color: CustomColors.fontColor, fontSize: 16),
-        ),
-        Obx(() => Checkbox(
-            value: data.shouldColorEverything.value,
-            checkColor: CustomColors.itemsBorderColor,
-            activeColor: CustomColors.appBackground,
-            overlayColor:
-                MaterialStateProperty.resolveWith(getCheckboxOverlayColor),
-            fillColor: MaterialStateProperty.resolveWith(getCheckboxFillColor),
-            onChanged: (value) => setState(() {
-                  data.changeColorSettingsAndSave(value!);
-                }))),
-        const Padding(padding: EdgeInsets.fromLTRB(0, 0, 20, 0)),
         ElevatedButton(
           style: const ButtonStyle(
               foregroundColor:
@@ -285,5 +267,41 @@ class _CustomDialogState extends State<CustomDialog> {
         ),
       ],
     );
+  }
+
+  Widget getTierColorPicker(String tierName, int tierIndex) {
+    return Row(children: [
+      Text(tierName, style: TextStyle(color: CustomColors.fontColor)),
+      Obx(() => IconButton(
+            color: addonsData.tierColors[tierIndex],
+            icon: Icon(Icons.circle),
+            onPressed: () => showDialog(
+                context: context,
+                builder: (BuildContext context) {
+                  return AlertDialog(
+                    titlePadding: const EdgeInsets.all(0),
+                    contentPadding: const EdgeInsets.all(0),
+                    content: SingleChildScrollView(
+                      child: ColorPicker(
+                        pickerColor: addonsData.tierColors[tierIndex],
+                        onColorChanged: (color) =>
+                            addonsData.changeTierColor(color, tierIndex),
+                        colorPickerWidth: 300,
+                        pickerAreaHeightPercent: 0.7,
+                        enableAlpha: true,
+                        labelTypes: [ColorLabelType.hsl, ColorLabelType.hsv],
+                        displayThumbColor: true,
+                        paletteType: PaletteType.hsl,
+                        pickerAreaBorderRadius: const BorderRadius.only(
+                          topLeft: Radius.circular(2),
+                          topRight: Radius.circular(2),
+                        ),
+                        hexInputBar: true,
+                      ),
+                    ),
+                  );
+                }),
+          ))
+    ]);
   }
 }
