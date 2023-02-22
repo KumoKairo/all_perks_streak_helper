@@ -41,19 +41,20 @@ class AllPerksStreakHelper extends StatefulWidget {
 }
 
 class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
-  final data = Get.put(DataController());
+  final oldData = Get.put(DataController());
+  final addonsData = Get.put(AddonsController());
 
   bool isChecked = false;
 
   _AllPerksStreakHelperState() {
-    data.addListener(() => setState(() {}));
+    oldData.addListener(() => setState(() {}));
   }
 
   static const actionsPadding = EdgeInsets.only(right: 16.0);
   final perksKey = GlobalKey<_KillersPerksViewWidgetState>();
 
   void changeColor(Color color) {
-    data.changeAccentColor(color);
+    oldData.changeAccentColor(color);
   }
 
   void applyChangeColor() {
@@ -66,15 +67,15 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
 
   void onSearchPicked(String? perkIndex) {
     if (perkIndex != null) {
-      data.selectSearchedPerk(perkIndex);
+      oldData.selectSearchedPerk(perkIndex);
       setState(() {});
     }
   }
 
   @override
   Widget build(BuildContext context) {
-    data.lastContext = context;
-    data.onColorUpdated = () => {setState((() => {}))};
+    oldData.lastContext = context;
+    oldData.onColorUpdated = () => {setState((() => {}))};
     return ContextMenuOverlay(
         child: MaterialApp(
       themeMode: ThemeMode.light,
@@ -85,10 +86,10 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       home: Scaffold(
         backgroundColor: CustomColors.appBackground,
         appBar: AppBar(
-          backgroundColor: data.accentColor,
+          backgroundColor: oldData.accentColor,
           leading: PopupMenuButton(
-              color: data.shouldColorEverything.value
-                  ? data.accentColor
+              color: oldData.shouldColorEverything.value
+                  ? oldData.accentColor
                   : CustomColors.appBackground,
               icon: const Icon(
                 Icons.menu,
@@ -117,7 +118,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
               },
               onSelected: (value) {
                 if (value != null && value is int) {
-                  perksKey.currentState?.menuPressed(value);
+                  addonsData.menuPressed(value);
                 }
               }),
           actions: [
@@ -181,7 +182,7 @@ class KillersPerksViewWidget extends StatefulWidget {
 }
 
 class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
-  final data = Get.find<DataController>();
+  final data = Get.find<AddonsController>();
 
   Future<void> menuPressed(int menuItem) async {
     // save
@@ -190,7 +191,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
     }
     // load
     else if (menuItem == 1) {
-      await data.load();
+      data.load();
       refresh();
     }
     // reset
@@ -206,175 +207,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
 
   @override
   Widget build(BuildContext context) {
-    return FutureBuilder(
-        future: data.getAllImagePaths(),
-        builder: ((context, snapshot) {
-          List<Widget> killerPortraits = List<Widget>.empty(growable: true);
-          List<Widget> perkIcons = List<Widget>.empty(growable: true);
-          if (data.killers != null && data.perks != null) {
-            for (int index = 0; index < data.killers!.length; index++) {
-              var killer = data.killers![index];
-              var killerPerks = data.killerPerks![killer]!;
-              var killerPerkWidgets = List<Widget>.empty(growable: true);
-              for (var killerPerk in killerPerks) {
-                var killerPerkWidget = Obx(() => Container(
-                      width: 88.0,
-                      height: 88.0,
-                      decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          color: data.shouldColorEverything.value
-                              ? data.accentColor
-                              : CustomColors.appBackground,
-                          border: Border.all(
-                              color:
-                                  killerPerk == data.highlightedPerkPath.value
-                                      ? CustomColors.perkHighlight
-                                      : CustomColors.itemsBorderColor,
-                              width:
-                                  killerPerk == data.highlightedPerkPath.value
-                                      ? 4
-                                      : 2)),
-                      margin: const EdgeInsets.all(1.0),
-                      child: Image(image: AssetImage(killerPerk)),
-                    ));
-                killerPerkWidgets.add(Draggable<String>(
-                    data: '$killer $killerPerk',
-                    feedback: killerPerkWidget,
-                    childWhenDragging: const SizedBox.shrink(),
-                    child: killerPerkWidget));
-              }
-
-              killerPortraits.add(DragTarget(
-                key: Key(killer),
-                onWillAccept: (perk) => data.killerPerks![killer]!.length < 4,
-                onAccept: (perk) {
-                  {
-                    var killerName = '';
-                    var perkName = '';
-
-                    if ((perk as String).contains(' ')) {
-                      killerName = perk.split(' ')[0];
-                      perkName = perk.split(' ')[1];
-                    } else {
-                      perkName = perk;
-                    }
-
-                    if (killerName != '') {
-                      data.killerPerks![killerName]!.remove(perkName);
-                    }
-
-                    data.killerPerks![killer]!.add(perkName);
-                    data.perks!.remove(perkName);
-                    refresh();
-                  }
-                },
-                builder: (context, _, __) => Container(
-                  decoration: BoxDecoration(
-                      border: Border.all(
-                          color: CustomColors.itemsBorderColor, width: 2.0),
-                      shape: BoxShape.rectangle,
-                      borderRadius:
-                          const BorderRadius.all(Radius.circular(8.0)),
-                      color: data.shouldColorEverything.value
-                          ? data.accentColor
-                          : CustomColors.appBackground),
-                  margin:
-                      const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
-                  child: Row(children: [
-                    ReorderableDragStartListener(
-                        index: index, child: Image(image: AssetImage(killer))),
-                    ...killerPerkWidgets
-                  ]),
-                ),
-              ));
-            }
-            for (var perk in data.perks!) {
-              var perkIcon = Obx(() => Container(
-                    width: 88.0,
-                    height: 88.0,
-                    decoration: BoxDecoration(
-                        shape: BoxShape.circle,
-                        color: data.shouldColorEverything.value
-                            ? data.accentColor
-                            : CustomColors.appBackground,
-                        border: Border.all(
-                            color: perk == data.highlightedPerkPath.value
-                                ? CustomColors.perkHighlight
-                                : CustomColors.itemsBorderColor,
-                            width: perk == data.highlightedPerkPath.value
-                                ? 4
-                                : 2)),
-                    margin: const EdgeInsets.all(1.0),
-                    child: Image(image: AssetImage(perk)),
-                  ));
-              perkIcons.add(Draggable<String>(
-                  data: perk,
-                  feedback: perkIcon,
-                  childWhenDragging: const SizedBox.shrink(),
-                  child: perkIcon));
-            }
-          }
-
-          Widget proxyDecorator(
-              Widget child, int index, Animation<double> animation) {
-            return AnimatedBuilder(
-              animation: animation,
-              builder: (BuildContext context, Widget? child) {
-                return Material(
-                  color: Colors.transparent,
-                  child: child,
-                );
-              },
-              child: child,
-            );
-          }
-
-          return Row(children: [
-            Expanded(
-                child: ReorderableListView(
-                    scrollController: data.portraitsScrollController,
-                    proxyDecorator: proxyDecorator,
-                    buildDefaultDragHandles: false,
-                    onReorder: ((oldIndex, newIndex) {
-                      // moving down
-                      if (oldIndex < newIndex) {
-                        newIndex--;
-                      }
-                      data.killers!
-                          .insert(newIndex, data.killers!.removeAt(oldIndex));
-                      refresh();
-                    }),
-                    children: killerPortraits)),
-            Expanded(
-                child: DragTarget(
-                    onAccept: (perk) {
-                      var killerName = '';
-                      var perkName = '';
-
-                      if ((perk as String).contains(' ')) {
-                        killerName = perk.split(' ')[0];
-                        perkName = perk.split(' ')[1];
-                      } else {
-                        perkName = perk;
-                      }
-
-                      if (killerName != '') {
-                        data.killerPerks![killerName]!.remove(perkName);
-                      }
-
-                      if (!data.perks!.contains(perkName)) {
-                        data.perks!.add(perkName);
-                        data.perks!.sort((a, b) => a.compareTo(b));
-                        refresh();
-                      }
-                    },
-                    builder: (context, _, __) => GridView.count(
-                          controller: data.perksGridScrollController,
-                          crossAxisCount: 8,
-                          children: perkIcons,
-                        )))
-          ]);
-        }));
+    return Text("placeholder");
   }
 }
 

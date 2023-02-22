@@ -14,16 +14,45 @@ class AddonsTab extends StatefulWidget {
 
 class AddonsController extends GetxController {
   Map<String, List<Widget>> addons = {};
-  RxMap<String, Color> addonColors = RxMap();
+  RxMap<String, String> addonColors = RxMap();
 
   @override
   void onInit() {
     super.onInit();
   }
+
+  void save() {
+    print("save");
+  }
+
+  void load() {
+    print("load");
+  }
+
+  void reset() {
+    print("reset");
+  }
+
+  void menuPressed(int menuItem) {
+    // save
+    if (menuItem == 0) {
+      save();
+    }
+    // load
+    else if (menuItem == 1) {
+      load();
+      refresh();
+    }
+    // reset
+    else if (menuItem == 2) {
+      reset();
+      refresh();
+    }
+  }
 }
 
 class AddonsTabState extends State<AddonsTab> {
-  AddonsController controller = Get.put(AddonsController());
+  final AddonsController controller = Get.find<AddonsController>();
 
   @override
   Widget build(BuildContext context) {
@@ -59,8 +88,7 @@ class AddonsTabState extends State<AddonsTab> {
                       Icons.circle,
                       color: CustomColors.tierSColor,
                     ),
-                    onPressed: () =>
-                        changeAddonColor(img, CustomColors.tierSColor),
+                    onPressed: () => changeAddonColor(img, "S"),
                   ),
                   ContextMenuButtonConfig(
                     "A",
@@ -68,8 +96,7 @@ class AddonsTabState extends State<AddonsTab> {
                       Icons.circle,
                       color: CustomColors.tierAColor,
                     ),
-                    onPressed: () =>
-                        changeAddonColor(img, CustomColors.tierAColor),
+                    onPressed: () => changeAddonColor(img, "A"),
                   ),
                   ContextMenuButtonConfig(
                     "B",
@@ -77,8 +104,7 @@ class AddonsTabState extends State<AddonsTab> {
                       Icons.circle,
                       color: CustomColors.tierBColor,
                     ),
-                    onPressed: () =>
-                        changeAddonColor(img, CustomColors.tierBColor),
+                    onPressed: () => changeAddonColor(img, "B"),
                   ),
                   ContextMenuButtonConfig(
                     "C",
@@ -86,8 +112,7 @@ class AddonsTabState extends State<AddonsTab> {
                       Icons.circle,
                       color: CustomColors.tierCColor,
                     ),
-                    onPressed: () =>
-                        changeAddonColor(img, CustomColors.tierCColor),
+                    onPressed: () => changeAddonColor(img, "C"),
                   ),
                   ContextMenuButtonConfig(
                     "D",
@@ -95,14 +120,13 @@ class AddonsTabState extends State<AddonsTab> {
                       Icons.circle,
                       color: CustomColors.tierDColor,
                     ),
-                    onPressed: () =>
-                        changeAddonColor(img, CustomColors.tierDColor),
+                    onPressed: () => changeAddonColor(img, "D"),
                   )
                 ],
               ),
               child: Obx(() => Container(
                   color: controller.addonColors.containsKey(img)
-                      ? controller.addonColors[img]
+                      ? tierToColor(controller.addonColors[img]!)
                       : Colors.transparent,
                   key: ValueKey(img),
                   height: 88.0,
@@ -135,7 +159,24 @@ class AddonsTabState extends State<AddonsTab> {
     return killerAddons;
   }
 
-  void changeAddonColor(String img, Color color) {
-    controller.addonColors[img] = color;
+  Color tierToColor(String tier) {
+    switch (tier) {
+      case "S":
+        return CustomColors.tierSColor;
+      case "A":
+        return CustomColors.tierAColor;
+      case "B":
+        return CustomColors.tierBColor;
+      case "C":
+        return CustomColors.tierCColor;
+      case "D":
+        return CustomColors.tierDColor;
+    }
+
+    return Colors.transparent;
+  }
+
+  void changeAddonColor(String img, String colorTier) {
+    controller.addonColors[img] = colorTier;
   }
 }
