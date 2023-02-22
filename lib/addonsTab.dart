@@ -16,13 +16,7 @@ class AddonsTab extends StatefulWidget {
 }
 
 class AddonsController extends GetxController {
-  RxList<Color> tierColors = RxList([
-    Color(0xFFFF7F7F),
-    Color(0xFFFFBF7F),
-    Color(0xFFFFDF7F),
-    Color(0xFFFFFF7F),
-    Color(0xFFBFFF7F)
-  ]);
+  late RxList<Color> tierColors;
 
   RxMap<String, RxList<String>> addonsMapping = RxMap();
   RxMap<String, String> addonColors = RxMap();
@@ -30,6 +24,21 @@ class AddonsController extends GetxController {
   @override
   void onInit() {
     super.onInit();
+
+    tierColors = RxList([
+      Color(0xFFFF7F7F),
+      Color(0xFFFFBF7F),
+      Color(0xFFFFDF7F),
+      Color(0xFFFFFF7F),
+      Color(0xFFBFFF7F)
+    ]);
+
+    if (!Directory(AddonsDownloadHelper.addonsRootFolder).existsSync()) {
+      Directory.current = "data\\flutter_assets";
+    }
+
+    addonColors = RxMap();
+
     var addonsRootFolder = AddonsDownloadHelper.addonsRootFolder;
     var addonsRootDirectory =
         Directory(addonsRootFolder).listSync().whereType<Directory>().toList();
@@ -99,7 +108,7 @@ class AddonsController extends GetxController {
   }
 
   void reset() {
-    print("reset");
+    onInit();
   }
 
   void menuPressed(int menuItem) async {

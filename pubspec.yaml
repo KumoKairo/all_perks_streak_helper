@@ -30,4 +30,34 @@ flutter:
 
   assets:
     - assets/images/addons/
-    - assets/images/
+    - assets/images/addons/Artist/
+    - assets/images/addons/Blight/
+    - assets/images/addons/Cannibal/
+    - assets/images/addons/Cenobite/
+    - assets/images/addons/Clown/
+    - assets/images/addons/Deathslinger/
+    - assets/images/addons/Demogorgon/
+    - assets/images/addons/Doctor/
+    - assets/images/addons/Dredge/
+    - assets/images/addons/Executioner/
+    - assets/images/addons/Ghost_Face/
+    - assets/images/addons/Hag/
+    - assets/images/addons/Hillbilly/
+    - assets/images/addons/Huntress/
+    - assets/images/addons/Knight/
+    - assets/images/addons/Legion/
+    - assets/images/addons/Mastermind/
+    - assets/images/addons/Nemesis/
+    - assets/images/addons/Nightmare/
+    - assets/images/addons/Nurse/
+    - assets/images/addons/Oni/
+    - assets/images/addons/Onryō/
+    - assets/images/addons/Pig/
+    - assets/images/addons/Plague/
+    - assets/images/addons/Shape/
+    - assets/images/addons/Skull_Merchant/
+    - assets/images/addons/Spirit/
+    - assets/images/addons/Trapper/
+    - assets/images/addons/Trickster/
+    - assets/images/addons/Twins/
+    - assets/images/addons/Wraith/
