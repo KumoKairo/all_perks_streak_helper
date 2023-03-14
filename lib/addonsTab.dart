@@ -95,7 +95,7 @@ class AddonsController extends GetxController {
         }
 
         for (var addon in addons) {
-          addonsMapping[killer]!.add(addon as String);
+          addonsMapping[killer]?.add(addon as String);
         }
       }
 
