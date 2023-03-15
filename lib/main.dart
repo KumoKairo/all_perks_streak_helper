@@ -76,7 +76,7 @@ class _AllPerksStreakHelperState extends State<AllPerksStreakHelper> {
       theme: ThemeData(
         scaffoldBackgroundColor: CustomColors.appBackground,
       ),
-      title: 'All perks streak helper',
+      title: 'Addons',
       home: Scaffold(
         backgroundColor: CustomColors.appBackground,
         appBar: AppBar(

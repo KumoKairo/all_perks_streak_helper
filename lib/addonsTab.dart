@@ -18,6 +18,8 @@ class AddonsTab extends StatefulWidget {
 class AddonsController extends GetxController {
   late RxList<Color> tierColors;
 
+  ScrollController killersListController = ScrollController();
+  RxList<Widget> killerAddonWidgets = RxList.empty(growable: true);
   RxMap<String, RxList<String>> addonsMapping = RxMap();
   RxMap<String, String> addonColors = RxMap();
 
@@ -86,13 +88,13 @@ class AddonsController extends GetxController {
         addonColors[entry.key] = entry.value as String;
       }
 
+      addonsMapping.clear();
+
       for (var entry in order.entries) {
         var killer = entry.key;
         var addons = entry.value as List<dynamic>;
 
-        if (addonsMapping.containsKey(killer)) {
-          addonsMapping[killer] = RxList();
-        }
+        addonsMapping[killer] = RxList();
 
         for (var addon in addons) {
           addonsMapping[killer]?.add(addon as String);
@@ -158,27 +160,65 @@ class AddonsController extends GetxController {
 
     return outputFile;
   }
+
+  void reorderKillers(int oldIndex, int newIndex) {
+    if (oldIndex < newIndex) {
+      newIndex--;
+    }
+    killerAddonWidgets.insert(newIndex, killerAddonWidgets.removeAt(oldIndex));
+
+    var tmpList =
+        addonsMapping.entries.map((e) => MapEntry(e.key, e.value)).toList();
+    tmpList.insert(newIndex, tmpList.removeAt(oldIndex));
+
+    addonsMapping.clear();
+
+    for (var element in tmpList) {
+      addonsMapping[element.key] = element.value;
+    }
+  }
 }
 
 class AddonsTabState extends State<AddonsTab> {
-  final AddonsController controller = Get.find<AddonsController>();
+  final AddonsController data = Get.find<AddonsController>();
+  final _listKey = GlobalKey();
 
   AddonsTabState() {
-    controller.addListener(() => setState(() {}));
+    data.addListener(() => setState(() {}));
   }
 
   @override
   Widget build(BuildContext context) {
-    return ListView(
-      controller: ScrollController(),
-      children: getAllAddonRows(),
-    );
+    data.killerAddonWidgets.clear();
+    data.killerAddonWidgets.addAll(getAllAddonRows());
+
+    Widget proxyDecorator(
+        Widget child, int index, Animation<double> animation) {
+      return AnimatedBuilder(
+        animation: animation,
+        builder: (BuildContext context, Widget? child) {
+          return Material(
+            color: Colors.transparent,
+            child: child,
+          );
+        },
+        child: child,
+      );
+    }
+
+    return Obx(() => ReorderableListView(
+          scrollController: data.killersListController,
+          onReorder: data.reorderKillers,
+          proxyDecorator: proxyDecorator,
+          children: data.killerAddonWidgets,
+        ));
   }
 
   List<Widget> getAllAddonRows() {
     var killerAddons = List<Widget>.empty(growable: true);
 
-    for (var killers in controller.addonsMapping.entries) {
+    var index = 0;
+    for (var killers in data.addonsMapping.entries) {
       var killerName = killers.key;
 
       var addonImages = killers.value
@@ -190,7 +230,7 @@ class AddonsTabState extends State<AddonsTab> {
                     "S",
                     icon: Obx(() => Icon(
                           Icons.circle,
-                          color: controller.tierColors[0],
+                          color: data.tierColors[0],
                         )),
                     onPressed: () => changeAddonColor(img, "S"),
                   ),
@@ -198,7 +238,7 @@ class AddonsTabState extends State<AddonsTab> {
                     "A",
                     icon: Obx(() => Icon(
                           Icons.circle,
-                          color: controller.tierColors[1],
+                          color: data.tierColors[1],
                         )),
                     onPressed: () => changeAddonColor(img, "A"),
                   ),
@@ -206,7 +246,7 @@ class AddonsTabState extends State<AddonsTab> {
                     "B",
                     icon: Obx(() => Icon(
                           Icons.circle,
-                          color: controller.tierColors[2],
+                          color: data.tierColors[2],
                         )),
                     onPressed: () => changeAddonColor(img, "B"),
                   ),
@@ -214,7 +254,7 @@ class AddonsTabState extends State<AddonsTab> {
                     "C",
                     icon: Obx(() => Icon(
                           Icons.circle,
-                          color: controller.tierColors[3],
+                          color: data.tierColors[3],
                         )),
                     onPressed: () => changeAddonColor(img, "C"),
                   ),
@@ -222,15 +262,15 @@ class AddonsTabState extends State<AddonsTab> {
                     "D",
                     icon: Obx(() => Icon(
                           Icons.circle,
-                          color: controller.tierColors[4],
+                          color: data.tierColors[4],
                         )),
                     onPressed: () => changeAddonColor(img, "D"),
                   )
                 ],
               ),
               child: Obx(() => Container(
-                  color: controller.addonColors.containsKey(img)
-                      ? tierToColor(controller.addonColors[img]!)
+                  color: data.addonColors.containsKey(img)
+                      ? tierToColor(data.addonColors[img]!)
                       : Colors.transparent,
                   key: ValueKey(img),
                   height: 88.0,
@@ -249,6 +289,7 @@ class AddonsTabState extends State<AddonsTab> {
       );
 
       killerAddons.add(Container(
+          key: Key(killerName),
           margin: const EdgeInsets.symmetric(vertical: 16.0),
           child: Row(
             children: [
@@ -259,6 +300,7 @@ class AddonsTabState extends State<AddonsTab> {
               Expanded(flex: 10, child: addonsWrap)
             ],
           )));
+      index++;
     }
 
     return killerAddons;
@@ -267,21 +309,21 @@ class AddonsTabState extends State<AddonsTab> {
   Color tierToColor(String tier) {
     switch (tier) {
       case "S":
-        return controller.tierColors[0];
+        return data.tierColors[0];
       case "A":
-        return controller.tierColors[1];
+        return data.tierColors[1];
       case "B":
-        return controller.tierColors[2];
+        return data.tierColors[2];
       case "C":
-        return controller.tierColors[3];
+        return data.tierColors[3];
       case "D":
-        return controller.tierColors[4];
+        return data.tierColors[4];
     }
 
     return Colors.transparent;
   }
 
   void changeAddonColor(String img, String colorTier) {
-    controller.addonColors[img] = colorTier;
+    data.addonColors[img] = colorTier;
   }
 }
