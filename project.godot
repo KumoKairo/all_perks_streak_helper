@@ -12,7 +12,16 @@ config_version=5
 
 config/name="Godot"
 config/features=PackedStringArray("4.0", "Mobile")
+boot_splash/bg_color=Color(0.0745098, 0.0745098, 0.0745098, 1)
+boot_splash/show_image=false
+boot_splash/use_filter=false
 config/icon="res://icon.svg"
+
+[display]
+
+window/size/viewport_width=1280
+window/size/viewport_height=768
+window/stretch/aspect="expand"
 
 [rendering]
 
