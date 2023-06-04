@@ -1,6 +1,8 @@
-[gd_scene load_steps=2 format=3 uid="uid://b2qfyfuxowrx1"]
+[gd_scene load_steps=4 format=3 uid="uid://b2qfyfuxowrx1"]
 
 [ext_resource type="Theme" uid="uid://bvp5w3v5jl0er" path="res://theme.tres" id="1_vqtpj"]
+[ext_resource type="Script" path="res://main.gd" id="2_vhpst"]
+[ext_resource type="PackedScene" uid="uid://clxs4mcs7jnx" path="res://killer_portrait_button.tscn" id="3_l2g7c"]
 
 [node name="Control" type="Control"]
 layout_mode = 3
@@ -10,3 +12,45 @@ anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_vqtpj")
+script = ExtResource("2_vhpst")
+
+[node name="ColorRect" type="ColorRect" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+color = Color(0.0745098, 0.0745098, 0.0745098, 1)
+
+[node name="PortraitCheck" type="TextureRect" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -135.0
+offset_top = -117.0
+offset_right = 135.0
+offset_bottom = 117.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="ScrollContainer" type="ScrollContainer" parent="."]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+horizontal_scroll_mode = 0
+
+[node name="PortraitsGrid" type="GridContainer" parent="ScrollContainer"]
+layout_mode = 2
+size_flags_horizontal = 3
+columns = 7
+
+[node name="KillerPortraitButton" parent="ScrollContainer/PortraitsGrid" instance=ExtResource("3_l2g7c")]
+layout_mode = 2

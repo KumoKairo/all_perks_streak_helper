@@ -10,7 +10,8 @@ config_version=5
 
 [application]
 
-config/name="Godot"
+config/name="dbd_addons"
+run/main_scene="res://main.tscn"
 config/features=PackedStringArray("4.0", "Mobile")
 boot_splash/bg_color=Color(0.0745098, 0.0745098, 0.0745098, 1)
 boot_splash/show_image=false

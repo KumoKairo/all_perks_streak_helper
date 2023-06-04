@@ -1,0 +1,15 @@
+[gd_scene load_steps=3 format=3 uid="uid://clxs4mcs7jnx"]
+
+[ext_resource type="Theme" uid="uid://bvp5w3v5jl0er" path="res://theme.tres" id="1_1byrd"]
+[ext_resource type="Texture2D" uid="uid://b628nlwc7nqgj" path="res://assets/images/addons/Artist/Artist.png" id="2_1oqww"]
+
+[node name="KillerPortraitButton" type="MarginContainer"]
+theme = ExtResource("1_1byrd")
+theme_override_constants/margin_left = 8
+theme_override_constants/margin_top = 8
+theme_override_constants/margin_right = 0
+theme_override_constants/margin_bottom = 0
+
+[node name="Button" type="Button" parent="."]
+layout_mode = 2
+icon = ExtResource("2_1oqww")
