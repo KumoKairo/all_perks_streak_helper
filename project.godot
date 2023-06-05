@@ -20,8 +20,9 @@ config/icon="res://icon.svg"
 
 [display]
 
-window/size/viewport_width=1280
-window/size/viewport_height=768
+window/size/viewport_width=1920
+window/size/viewport_height=1200
+window/stretch/mode="canvas_items"
 window/stretch/aspect="expand"
 
 [rendering]

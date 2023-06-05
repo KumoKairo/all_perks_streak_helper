@@ -1,6 +1,6 @@
 [gd_resource type="Theme" load_steps=6 format=3 uid="uid://bvp5w3v5jl0er"]
 
-[ext_resource type="FontFile" uid="uid://cwiw634vln1jn" path="res://fonts/Roboto/Roboto-Regular.ttf" id="1_fjlh4"]
+[ext_resource type="FontFile" uid="uid://bu7vo4173y268" path="res://fonts/Roboto/Roboto-Bold.ttf" id="1_0vp3m"]
 
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_ofd06"]
 
@@ -16,7 +16,7 @@ corner_radius_bottom_left = 16
 [sub_resource type="StyleBoxEmpty" id="StyleBoxEmpty_f3kpi"]
 
 [resource]
-default_font = ExtResource("1_fjlh4")
+default_font = ExtResource("1_0vp3m")
 Button/styles/focus = SubResource("StyleBoxEmpty_ofd06")
 Button/styles/hover = SubResource("StyleBoxFlat_4v75y")
 Button/styles/normal = SubResource("StyleBoxEmpty_6gioc")

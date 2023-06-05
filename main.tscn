@@ -1,10 +1,14 @@
-[gd_scene load_steps=4 format=3 uid="uid://b2qfyfuxowrx1"]
+[gd_scene load_steps=8 format=3 uid="uid://b2qfyfuxowrx1"]
 
 [ext_resource type="Theme" uid="uid://bvp5w3v5jl0er" path="res://theme.tres" id="1_vqtpj"]
 [ext_resource type="Script" path="res://main.gd" id="2_vhpst"]
-[ext_resource type="PackedScene" uid="uid://clxs4mcs7jnx" path="res://killer_portrait_button.tscn" id="3_l2g7c"]
+[ext_resource type="PackedScene" uid="uid://c7fl2selo8hmg" path="res://addon.tscn" id="3_lgglq"]
+[ext_resource type="Texture2D" uid="uid://cn3h67irlesoc" path="res://assets/images/addons/001_Trapper/Portrait.png" id="3_vlil0"]
+[ext_resource type="Script" path="res://GridContainer.gd" id="3_ys4cs"]
+[ext_resource type="PackedScene" uid="uid://1wiqnpvyklna" path="res://tier_line.tscn" id="5_d3wpa"]
+[ext_resource type="Texture2D" uid="uid://jwbcsfnxi42d" path="res://assets/ui/arrowLeft.png" id="5_q1vgf"]
 
-[node name="Control" type="Control"]
+[node name="Control" type="Control" node_paths=PackedStringArray("portraits_grid", "addons_area", "main_scroll_container", "addons_grid_container", "killer_portrait_image")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -13,6 +17,11 @@ grow_horizontal = 2
 grow_vertical = 2
 theme = ExtResource("1_vqtpj")
 script = ExtResource("2_vhpst")
+portraits_grid = NodePath("KillersList/PortraitsGrid")
+addons_area = NodePath("AddonsArea")
+main_scroll_container = NodePath("KillersList")
+addons_grid_container = NodePath("AddonsArea/GridContainer")
+killer_portrait_image = NodePath("AddonsArea/KillerAndTierList/KillerPotrait")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -23,22 +32,7 @@ grow_horizontal = 2
 grow_vertical = 2
 color = Color(0.0745098, 0.0745098, 0.0745098, 1)
 
-[node name="PortraitCheck" type="TextureRect" parent="."]
-visible = false
-layout_mode = 1
-anchors_preset = 8
-anchor_left = 0.5
-anchor_top = 0.5
-anchor_right = 0.5
-anchor_bottom = 0.5
-offset_left = -135.0
-offset_top = -117.0
-offset_right = 135.0
-offset_bottom = 117.0
-grow_horizontal = 2
-grow_vertical = 2
-
-[node name="ScrollContainer" type="ScrollContainer" parent="."]
+[node name="KillersList" type="ScrollContainer" parent="."]
 layout_mode = 1
 anchors_preset = 15
 anchor_right = 1.0
@@ -47,10 +41,131 @@ grow_horizontal = 2
 grow_vertical = 2
 horizontal_scroll_mode = 0
 
-[node name="PortraitsGrid" type="GridContainer" parent="ScrollContainer"]
+[node name="PortraitsGrid" type="GridContainer" parent="KillersList"]
 layout_mode = 2
 size_flags_horizontal = 3
 columns = 7
 
-[node name="KillerPortraitButton" parent="ScrollContainer/PortraitsGrid" instance=ExtResource("3_l2g7c")]
+[node name="AddonsArea" type="Control" parent="."]
+visible = false
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="GridContainer" type="GridContainer" parent="AddonsArea"]
+layout_mode = 1
+anchors_preset = -1
+anchor_left = 0.598
+anchor_right = 1.0
+anchor_bottom = 0.984
+offset_left = -0.160156
+offset_top = 278.0
+offset_right = -16.0
+offset_bottom = -161.8
+grow_horizontal = 0
+grow_vertical = 2
+columns = 5
+script = ExtResource("3_ys4cs")
+
+[node name="Addon" parent="AddonsArea/GridContainer" instance=ExtResource("3_lgglq")]
+visible = false
 layout_mode = 2
+
+[node name="KillerAndTierList" type="Control" parent="AddonsArea"]
+layout_mode = 1
+anchor_right = 0.605
+anchor_bottom = 1.0
+offset_right = -0.600098
+grow_vertical = 2
+
+[node name="KillerPotrait" type="TextureRect" parent="AddonsArea/KillerAndTierList"]
+layout_mode = 1
+anchors_preset = 5
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -89.5
+offset_top = 17.0
+offset_right = 83.5
+offset_bottom = 252.0
+grow_horizontal = 2
+texture = ExtResource("3_vlil0")
+expand_mode = 1
+stretch_mode = 4
+
+[node name="TierList" type="Control" parent="AddonsArea/KillerAndTierList"]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -534.5
+offset_top = -322.0
+offset_right = 535.5
+offset_bottom = 541.0
+grow_horizontal = 2
+grow_vertical = 2
+
+[node name="Tiers" type="VBoxContainer" parent="AddonsArea/KillerAndTierList/TierList"]
+layout_mode = 1
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_constants/separation = 4
+
+[node name="S" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.32549, 0.878431, 0.913725, 1)
+tier_letter_color = Color(0, 0.568627, 0.694118, 1)
+tier_letter = "S"
+
+[node name="A" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.34902, 0.937255, 0.533333, 1)
+tier_letter_color = Color(0, 0.776471, 0, 1)
+tier_letter = "A"
+
+[node name="B" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.584314, 0.972549, 0.376471, 1)
+tier_letter_color = Color(0.239216, 0.901961, 0, 1)
+tier_letter = "B"
+
+[node name="C" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.905882, 0.811765, 0.278431, 1)
+tier_letter_color = Color(0.827451, 0.333333, 0, 1)
+tier_letter = "C"
+
+[node name="D" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.905882, 0.498039, 0.227451, 1)
+tier_letter_color = Color(0.827451, 0, 0, 1)
+tier_letter = "D"
+
+[node name="F" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.439216, 0.317647, 0.278431, 1)
+tier_letter_color = Color(0.0901961, 0.0627451, 0.054902, 1)
+tier_letter = "F"
+
+[node name="BackButton" type="Button" parent="AddonsArea"]
+modulate = Color(0.25098, 0.25098, 0.25098, 1)
+layout_mode = 1
+anchors_preset = 2
+anchor_top = 1.0
+anchor_bottom = 1.0
+offset_left = 8.0
+offset_top = -108.0
+offset_right = 108.0
+offset_bottom = -8.0
+grow_vertical = 0
+theme = ExtResource("1_vqtpj")
+icon = ExtResource("5_q1vgf")
+
+[connection signal="pressed" from="AddonsArea/BackButton" to="." method="_on_back_button_pressed"]

@@ -1,0 +1,28 @@
+[gd_scene load_steps=3 format=3 uid="uid://c7fl2selo8hmg"]
+
+[ext_resource type="Texture2D" uid="uid://dixf6vljbft0q" path="res://assets/images/addons/001_Trapper/4-coilSpringKit.png" id="1_1lh7r"]
+[ext_resource type="Script" path="res://addon.gd" id="1_iy27q"]
+
+[node name="Addon" type="Control"]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 3
+anchors_preset = 0
+script = ExtResource("1_iy27q")
+
+[node name="AddonImage" type="TextureRect" parent="."]
+custom_minimum_size = Vector2(120, 120)
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -60.0
+offset_top = -60.0
+offset_right = 60.0
+offset_bottom = 60.0
+grow_horizontal = 2
+grow_vertical = 2
+texture = ExtResource("1_1lh7r")
+expand_mode = 1
+stretch_mode = 4
