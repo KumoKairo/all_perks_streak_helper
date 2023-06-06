@@ -3,7 +3,6 @@ class_name AddonImage
 
 signal start_drag
 
-var addon_name: String
 var addon_info
 var drag_preview
 

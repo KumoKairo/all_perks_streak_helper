@@ -5,12 +5,15 @@ const PORTRAIT_FILE = "Portrait.png"
 
 @export var portraits_grid: GridContainer
 @export var addons_area: Control
-@export var main_scroll_container: ScrollContainer
 @export var addons_grid_container: AddonsGridContainer
 @export var killer_portrait_image: TextureRect
+@export var crop_screenshit_area: Control
 
 var killer_addons = {}
 var tier_lines = Array()
+var current_killer_name: String
+
+var killers_and_addons_data = {}
 
 func _ready():
 	var dir = get_base_images_dir() 
@@ -18,19 +21,17 @@ func _ready():
 	add_killer_portrait_buttons(folders)
 	var tiers = $AddonsArea/KillerAndTierList/TierList/Tiers.get_children(false)
 	tier_lines.append_array(tiers)
-	for tier_line in tier_lines:
-		tier_line.receive_dropped_addon.connect(_on_dropped_addon_on_tier_line)
-	print(tier_lines)
 	
 func add_killer_portrait_buttons(folders):
 	for folder in folders:
 		var dir = DirAccess.open(folder)
-		var killer_name = dir.get_current_dir().get_file().substr(4)
+		var ordered_killer_name = dir.get_current_dir().get_file()
+		var killer_name = ordered_killer_name.substr(4)
 		var has_portrait = dir.file_exists(PORTRAIT_FILE)
 		if has_portrait:
 			var new_button = load("res://killer_portrait_button.tscn").instantiate()
 			new_button.set_icon(load_external_tex(folder + "/" + PORTRAIT_FILE))
-			new_button.set_killer_name(killer_name)
+			new_button.set_killer_name(killer_name, ordered_killer_name)
 			new_button.pressed.connect(_on_killer_button_pressed.bind(new_button))
 			portraits_grid.add_child(new_button)
 			init_addons_for_killer(killer_name, dir)
@@ -48,6 +49,7 @@ func init_addons_for_killer(killer_name, dir: DirAccess):
 		file_name = dir.get_next()
 
 func _on_killer_button_pressed(button):
+	current_killer_name = button.killer_ordered_name
 	portraits_grid.hide()
 	addons_area.show()
 	killer_portrait_image.texture = button.killer_icon
@@ -81,10 +83,34 @@ func load_external_tex(path):
 	return texture
 
 func _on_back_button_pressed():
+	var tier_lines_parent = $AddonsArea/KillerAndTierList/TierList/Tiers
+	
+	killers_and_addons_data[current_killer_name] = {
+		"S": tier_lines_parent.get_node("S/HBoxContainer").get_children().map(get_addon_name),
+		"A": tier_lines_parent.get_node("A/HBoxContainer").get_children().map(get_addon_name),
+		"B": tier_lines_parent.get_node("B/HBoxContainer").get_children().map(get_addon_name),
+		"C": tier_lines_parent.get_node("C/HBoxContainer").get_children().map(get_addon_name),
+		"D": tier_lines_parent.get_node("D/HBoxContainer").get_children().map(get_addon_name),
+		"F": tier_lines_parent.get_node("F/HBoxContainer").get_children().map(get_addon_name)
+	}
+	
+	print(killers_and_addons_data)
+	
+	current_killer_name = ""
 	portraits_grid.show()
-	addons_area.hide() # Replace with function body.
+	addons_area.hide()
+	
+func get_addon_name(a):
+	return a.addon_info.name
 
-#================
-func _on_dropped_addon_on_tier_line(data, tier_line):
-	print(tier_line)
-	print(data)
+func _on_save_pressed():
+	pass
+
+func _on_load_pressed():
+	pass
+
+func _on_share_pressed():
+	var crop_top_left = crop_screenshit_area.get_rect().position
+	var crop_size = crop_screenshit_area.get_rect().size
+	var image = get_viewport().get_texture().get_image().get_region(Rect2i(crop_top_left, crop_size))
+	image.save_png(current_killer_name + ".png")

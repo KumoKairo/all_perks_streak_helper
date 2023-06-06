@@ -1,13 +1,16 @@
-[gd_scene load_steps=7 format=3 uid="uid://b2qfyfuxowrx1"]
+[gd_scene load_steps=10 format=3 uid="uid://b2qfyfuxowrx1"]
 
 [ext_resource type="Theme" uid="uid://bvp5w3v5jl0er" path="res://theme.tres" id="1_vqtpj"]
 [ext_resource type="Script" path="res://main.gd" id="2_vhpst"]
+[ext_resource type="Texture2D" uid="uid://c7xt50ewps3cb" path="res://assets/ui/save.png" id="3_pw4x7"]
 [ext_resource type="Texture2D" uid="uid://cn3h67irlesoc" path="res://assets/images/addons/001_Trapper/Portrait.png" id="3_vlil0"]
 [ext_resource type="Script" path="res://AddonsGridContainer.gd" id="5_8x7rk"]
 [ext_resource type="PackedScene" uid="uid://1wiqnpvyklna" path="res://tier_line.tscn" id="5_d3wpa"]
 [ext_resource type="Texture2D" uid="uid://jwbcsfnxi42d" path="res://assets/ui/arrowLeft.png" id="5_q1vgf"]
+[ext_resource type="Texture2D" uid="uid://cxbst3gbofsy2" path="res://assets/ui/import.png" id="8_2mblb"]
+[ext_resource type="Texture2D" uid="uid://dclxqg7orfwin" path="res://assets/ui/share1.png" id="9_5chew"]
 
-[node name="Control" type="Control" node_paths=PackedStringArray("portraits_grid", "addons_area", "main_scroll_container", "addons_grid_container", "killer_portrait_image")]
+[node name="Control" type="Control" node_paths=PackedStringArray("portraits_grid", "addons_area", "addons_grid_container", "killer_portrait_image", "crop_screenshit_area")]
 layout_mode = 3
 anchors_preset = 15
 anchor_right = 1.0
@@ -18,9 +21,9 @@ theme = ExtResource("1_vqtpj")
 script = ExtResource("2_vhpst")
 portraits_grid = NodePath("KillersList/PortraitsGrid")
 addons_area = NodePath("AddonsArea")
-main_scroll_container = NodePath("KillersList")
 addons_grid_container = NodePath("AddonsArea/GridContainer")
 killer_portrait_image = NodePath("AddonsArea/KillerAndTierList/KillerPotrait")
+crop_screenshit_area = NodePath("AddonsArea/CropScreenshotArea")
 
 [node name="ColorRect" type="ColorRect" parent="."]
 layout_mode = 1
@@ -53,6 +56,14 @@ anchor_right = 1.0
 anchor_bottom = 1.0
 grow_horizontal = 2
 grow_vertical = 2
+
+[node name="CropScreenshotArea" type="Control" parent="AddonsArea"]
+visible = false
+anchors_preset = 0
+offset_left = 41.0
+offset_top = 15.0
+offset_right = 1120.0
+offset_bottom = 1023.0
 
 [node name="KillerAndTierList" type="Control" parent="AddonsArea"]
 layout_mode = 1
@@ -100,12 +111,14 @@ theme_override_constants/separation = 4
 
 [node name="S" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
+color = Color(0.176471, 0.176471, 0.176471, 1)
 tier_background_color = Color(0.32549, 0.878431, 0.913725, 1)
 tier_letter_color = Color(0, 0.568627, 0.694118, 1)
 tier_letter = "S"
 
 [node name="A" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
+color = Color(0.223529, 0.223529, 0.223529, 1)
 tier_background_color = Color(0.34902, 0.937255, 0.533333, 1)
 tier_letter_color = Color(0, 0.776471, 0, 1)
 tier_letter = "A"
@@ -118,6 +131,7 @@ tier_letter = "B"
 
 [node name="C" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
+color = Color(0.223529, 0.223529, 0.223529, 1)
 tier_background_color = Color(0.905882, 0.811765, 0.278431, 1)
 tier_letter_color = Color(0.827451, 0.333333, 0, 1)
 tier_letter = "C"
@@ -130,6 +144,7 @@ tier_letter = "D"
 
 [node name="F" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
+color = Color(0.223529, 0.223529, 0.223529, 1)
 tier_background_color = Color(0.439216, 0.317647, 0.278431, 1)
 tier_letter_color = Color(0.0901961, 0.0627451, 0.054902, 1)
 tier_letter = "F"
@@ -162,24 +177,52 @@ grow_vertical = 2
 columns = 5
 script = ExtResource("5_8x7rk")
 
-[node name="BackButton" type="Button" parent="AddonsArea"]
-modulate = Color(0.25098, 0.25098, 0.25098, 1)
+[node name="HBoxContainer" type="HBoxContainer" parent="AddonsArea"]
+custom_minimum_size = Vector2(60, 60)
 layout_mode = 1
 anchors_preset = 2
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 8.0
-offset_top = -108.0
-offset_right = 108.0
-offset_bottom = -8.0
+offset_top = -88.0
+offset_right = 316.0
+offset_bottom = 12.0
 grow_vertical = 0
+scale = Vector2(0.8, 0.8)
+
+[node name="BackButton" type="Button" parent="AddonsArea/HBoxContainer"]
+modulate = Color(0.25098, 0.25098, 0.25098, 1)
+layout_mode = 2
 theme = ExtResource("1_vqtpj")
 icon = ExtResource("5_q1vgf")
 
-[connection signal="pressed" from="AddonsArea/BackButton" to="." method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/S" method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/A" method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/B" method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/C" method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/D" method="_on_back_button_pressed"]
-[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/F" method="_on_back_button_pressed"]
+[node name="Save" type="Button" parent="AddonsArea/HBoxContainer"]
+modulate = Color(0.25098, 0.25098, 0.25098, 1)
+custom_minimum_size = Vector2(60, 60)
+layout_mode = 2
+size_flags_horizontal = 3
+theme = ExtResource("1_vqtpj")
+icon = ExtResource("3_pw4x7")
+
+[node name="Load" type="Button" parent="AddonsArea/HBoxContainer"]
+modulate = Color(0.25098, 0.25098, 0.25098, 1)
+layout_mode = 2
+theme = ExtResource("1_vqtpj")
+icon = ExtResource("8_2mblb")
+
+[node name="Share" type="Button" parent="AddonsArea/HBoxContainer"]
+modulate = Color(0.25098, 0.25098, 0.25098, 1)
+layout_mode = 2
+theme = ExtResource("1_vqtpj")
+icon = ExtResource("9_5chew")
+
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/S" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/A" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/B" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/C" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/D" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/F" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/Save" to="." method="_on_save_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/Load" to="." method="_on_load_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/Share" to="." method="_on_share_pressed"]
