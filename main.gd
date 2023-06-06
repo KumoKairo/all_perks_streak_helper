@@ -19,6 +19,9 @@ func _ready():
 	var dir = get_base_images_dir() 
 	var folders = get_addon_folders(dir)
 	add_killer_portrait_buttons(folders)
+	for tier_line in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
+		tier_line.receive_dropped_addon.connect(apply_current_addons_data)
+		
 	for tier in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
 		tier_lines[tier.name] = tier
 	
@@ -64,7 +67,6 @@ func _on_killer_button_pressed(button):
 				for a in addons:
 					tier_lines[tier_line].hbox.add_child(a)
 					
-	print(killers_and_addons_data)
 
 func get_base_images_dir():
 	var base_dir = ""
@@ -92,8 +94,8 @@ func load_external_tex(path):
 	var image = Image.load_from_file(path)
 	var texture = ImageTexture.create_from_image(image)
 	return texture
-
-func _on_back_button_pressed():
+	
+func apply_current_addons_data(data, tier_line):
 	var tier_lines_parent = $AddonsArea/KillerAndTierList/TierList/Tiers
 	
 	killers_and_addons_data[current_killer_name] = {
@@ -104,9 +106,8 @@ func _on_back_button_pressed():
 		"D": tier_lines_parent.get_node("D/HBoxContainer").get_children().map(get_addon_name),
 		"F": tier_lines_parent.get_node("F/HBoxContainer").get_children().map(get_addon_name)
 	}
-	
-	print(killers_and_addons_data)
-	
+
+func _on_back_button_pressed():
 	current_killer_name = ""
 	portraits_grid.show()
 	addons_area.hide()
@@ -115,7 +116,10 @@ func get_addon_name(a):
 	return a.addon_info.name
 
 func _on_save_pressed():
-	pass
+	var save_data = JSON.stringify(killers_and_addons_data)
+	var file = FileAccess.open("save.json", FileAccess.WRITE)
+	file.store_string(save_data)
+	file.close()
 
 func _on_load_pressed():
 	pass
