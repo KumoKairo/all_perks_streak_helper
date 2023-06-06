@@ -1,7 +1,7 @@
 extends GridContainer
 class_name AddonsGridContainer
 
-func show_addons(addons):
+func show_addons(addons, save_state):
 	while get_child_count() < len(addons):
 		var addon = load("res://addon.tscn").instantiate()
 		addon.start_drag.connect(_on_addon_start_drag)
@@ -30,3 +30,9 @@ func show_or_hide_addon(addon):
 #		if addon.addon_info.name == pooled_addon.addon_info.name and pooled_addon.is_visible_in_tree():
 #			pooled_addon.hide()
 #			break
+
+func unparent_and_give_addons(addon_names):
+	var filtered_children = get_children().filter(func(a): return addon_names.has(a.addon_info.name))
+	for child in filtered_children:
+		remove_child(child)
+	return filtered_children

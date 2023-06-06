@@ -3,10 +3,11 @@
 [ext_resource type="Theme" uid="uid://bvp5w3v5jl0er" path="res://theme.tres" id="1_mhjxl"]
 [ext_resource type="Script" path="res://tier_line.gd" id="1_rcle5"]
 
-[node name="S" type="ColorRect"]
+[node name="S" type="ColorRect" node_paths=PackedStringArray("hbox")]
 custom_minimum_size = Vector2(1.965, 120)
 color = Color(0.176471, 0.176471, 0.176471, 1)
 script = ExtResource("1_rcle5")
+hbox = NodePath("HBoxContainer")
 
 [node name="TierLetter" type="ColorRect" parent="."]
 custom_minimum_size = Vector2(120, 35)

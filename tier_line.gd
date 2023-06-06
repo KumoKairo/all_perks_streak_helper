@@ -7,6 +7,8 @@ signal receive_dropped_addon
 @export var tier_letter_color: Color
 @export var tier_letter: String
 
+@export var hbox: HBoxContainer
+
 func _ready():
 	$TierLetter.color = tier_background_color
 	$TierLetter/Label.text = tier_letter
@@ -23,3 +25,4 @@ func _drop_data(_at_position, data):
 func _on_back_button_pressed():
 	for i in range(0, $HBoxContainer.get_child_count()):
 		$HBoxContainer.get_child(i).queue_free()
+

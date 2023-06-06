@@ -10,17 +10,17 @@ const PORTRAIT_FILE = "Portrait.png"
 @export var crop_screenshit_area: Control
 
 var killer_addons = {}
-var tier_lines = Array()
 var current_killer_name: String
 
 var killers_and_addons_data = {}
+var tier_lines = {}
 
 func _ready():
 	var dir = get_base_images_dir() 
 	var folders = get_addon_folders(dir)
 	add_killer_portrait_buttons(folders)
-	var tiers = $AddonsArea/KillerAndTierList/TierList/Tiers.get_children(false)
-	tier_lines.append_array(tiers)
+	for tier in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
+		tier_lines[tier.name] = tier
 	
 func add_killer_portrait_buttons(folders):
 	for folder in folders:
@@ -53,7 +53,18 @@ func _on_killer_button_pressed(button):
 	portraits_grid.hide()
 	addons_area.show()
 	killer_portrait_image.texture = button.killer_icon
-	addons_grid_container.show_addons(killer_addons[button.killer_name])
+	
+	if not killers_and_addons_data.has(current_killer_name):
+		killers_and_addons_data[current_killer_name] = {}
+	
+	addons_grid_container.show_addons(killer_addons[button.killer_name], killers_and_addons_data[current_killer_name])
+	for tier_line in tier_lines:
+			if killers_and_addons_data[current_killer_name].has(tier_line):
+				var addons = addons_grid_container.unparent_and_give_addons(killers_and_addons_data[current_killer_name][tier_line])
+				for a in addons:
+					tier_lines[tier_line].hbox.add_child(a)
+					
+	print(killers_and_addons_data)
 
 func get_base_images_dir():
 	var base_dir = ""
