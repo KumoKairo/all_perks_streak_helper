@@ -1,6 +1,8 @@
 extends ColorRect
 class_name TierLine
 
+signal receive_dropped_addon
+
 @export var tier_background_color: Color
 @export var tier_letter_color: Color
 @export var tier_letter: String
@@ -10,9 +12,10 @@ func _ready():
 	$TierLetter/Label.text = tier_letter
 	$TierLetter/Label.add_theme_color_override("font_color", tier_letter_color)
 
-func _can_drop_data(at_position, data):
-	print(data)
+func _can_drop_data(_at_position, data):
 	return true
 
-func _drop_data(at_position, data):
-	print("DROP " + str(data))
+func _drop_data(_at_position, data):
+	data.drag_object.get_parent().remove_child(data.drag_object)
+	$HBoxContainer.add_child(data.drag_object)
+	receive_dropped_addon.emit(data, self)

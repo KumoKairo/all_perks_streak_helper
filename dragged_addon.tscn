@@ -1,0 +1,13 @@
+[gd_scene load_steps=3 format=3 uid="uid://c05myv8pryy0n"]
+
+[ext_resource type="Texture2D" uid="uid://cdsf0hbc2tdgu" path="res://assets/images/addons/001_Trapper/bearOil.png" id="1_xenlx"]
+[ext_resource type="Script" path="res://dragged_addon.gd" id="2_2m7k6"]
+
+[node name="DraggedAddon" type="TextureRect"]
+offset_right = 120.0
+offset_bottom = 120.0
+rotation = 0.18675
+pivot_offset = Vector2(60, 60)
+texture = ExtResource("1_xenlx")
+expand_mode = 1
+script = ExtResource("2_2m7k6")

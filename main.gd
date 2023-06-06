@@ -6,15 +6,21 @@ const PORTRAIT_FILE = "Portrait.png"
 @export var portraits_grid: GridContainer
 @export var addons_area: Control
 @export var main_scroll_container: ScrollContainer
-@export var addons_grid_container: GridContainer
+@export var addons_grid_container: AddonsGridContainer
 @export var killer_portrait_image: TextureRect
 
 var killer_addons = {}
+var tier_lines = Array()
 
 func _ready():
 	var dir = get_base_images_dir() 
 	var folders = get_addon_folders(dir)
 	add_killer_portrait_buttons(folders)
+	var tiers = $AddonsArea/KillerAndTierList/TierList/Tiers.get_children(false)
+	tier_lines.append_array(tiers)
+	for tier_line in tier_lines:
+		tier_line.receive_dropped_addon.connect(_on_dropped_addon_on_tier_line)
+	print(tier_lines)
 	
 func add_killer_portrait_buttons(folders):
 	for folder in folders:
@@ -38,7 +44,7 @@ func init_addons_for_killer(killer_name, dir: DirAccess):
 		if file_name != PORTRAIT_FILE and not file_name.ends_with(".import"):
 			var full_path = dir_path + file_name
 			var addon_texture = load_external_tex(full_path)
-			killer_addons[killer_name].push_back(addon_texture)
+			killer_addons[killer_name].push_back({"texture": addon_texture, "name": file_name})
 		file_name = dir.get_next()
 
 func _on_killer_button_pressed(button):
@@ -77,3 +83,8 @@ func load_external_tex(path):
 func _on_back_button_pressed():
 	portraits_grid.show()
 	addons_area.hide() # Replace with function body.
+
+#================
+func _on_dropped_addon_on_tier_line(data, tier_line):
+	print(tier_line)
+	print(data)
