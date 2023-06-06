@@ -15,6 +15,10 @@ func _can_drop_data(_at_position, data):
 	return get_parent().get_parent().get_parent().name == "Tiers"
 	
 func _drop_data(_at_position, data):
+	if(get_parent().has_node(data.drag_object.get_path())):
+		data.drag_object.get_parent().remove_child(data.drag_object)
+		get_parent().add_child(data.drag_object)
+		
 	get_parent().move_child(data.drag_object, get_index())
 	
 func _get_drag_data(at_position):

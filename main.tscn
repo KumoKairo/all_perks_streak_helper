@@ -177,3 +177,9 @@ theme = ExtResource("1_vqtpj")
 icon = ExtResource("5_q1vgf")
 
 [connection signal="pressed" from="AddonsArea/BackButton" to="." method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/S" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/A" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/B" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/C" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/D" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/F" method="_on_back_button_pressed"]
