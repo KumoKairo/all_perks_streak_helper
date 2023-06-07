@@ -2,6 +2,7 @@ extends Control
 
 const ADDONS_DIR = "assets/images/addons/"
 const PORTRAIT_FILE = "Portrait.png"
+const SAVE_FILE = "save.json"
 
 @export var portraits_grid: GridContainer
 @export var addons_area: Control
@@ -25,11 +26,14 @@ func _ready():
 	for tier in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
 		tier_lines[tier.name] = tier
 		
+func get_killer_name_from_ordered(name):
+	return name.substr(4)
+		
 func add_killer_portrait_buttons(folders):
 	for folder in folders:
 		var dir = DirAccess.open(folder)
 		var ordered_killer_name = dir.get_current_dir().get_file()
-		var killer_name = ordered_killer_name.substr(4)
+		var killer_name = get_killer_name_from_ordered(ordered_killer_name)
 		var has_portrait = dir.file_exists(PORTRAIT_FILE)
 		if has_portrait:
 			var new_button = load("res://killer_portrait_button.tscn").instantiate()
@@ -59,7 +63,7 @@ func _on_killer_button_pressed(button):
 	
 	if not killers_and_addons_data.has(current_killer_name):
 		killers_and_addons_data[current_killer_name] = {}
-	
+		
 	addons_grid_container.show_addons(killer_addons[button.killer_name], killers_and_addons_data[current_killer_name])
 	for tier_line in tier_lines:
 			if killers_and_addons_data[current_killer_name].has(tier_line):
@@ -117,13 +121,33 @@ func get_addon_name(a):
 
 func _on_save_pressed():
 	var save_data = JSON.stringify(killers_and_addons_data)
-	var file = FileAccess.open("save.json", FileAccess.WRITE)
+	var file = FileAccess.open(SAVE_FILE, FileAccess.WRITE)
 	file.store_string(save_data)
 	file.close()
 	$PopupMessage.show_text("Saved everything to 'save.json' file. Back it up just in case")
 
 func _on_load_pressed():
-	pass
+	if not FileAccess.file_exists(SAVE_FILE):
+		$PopupMessage.show_text("'save.json' file not found. Make sure it's in the same directory as this app")
+		return
+	
+	var file = FileAccess.open(SAVE_FILE,FileAccess.READ)
+	
+	var save_data = JSON.parse_string(file.get_as_text())
+	if save_data == null:
+		$PopupMessage.show_text("'save.json' file is corrupted or just can't be read. Make sure it was made by this app")
+		return
+		
+	killers_and_addons_data = save_data
+	var fake_button = {}
+	fake_button.killer_ordered_name = current_killer_name
+	fake_button.killer_icon = killer_portrait_image.texture
+	fake_button.killer_name = get_killer_name_from_ordered(current_killer_name)
+	_on_killer_button_pressed(fake_button)
+	
+	$PopupMessage.show_text("'save.json' file successfully loaded")
+	
+	file.close()
 
 func _on_share_pressed():
 	var crop_top_left = crop_screenshit_area.get_rect().position
