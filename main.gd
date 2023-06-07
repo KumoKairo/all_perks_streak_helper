@@ -100,9 +100,6 @@ func load_external_tex(path):
 	return texture
 	
 func apply_current_addons_data(data, tier_line):
-	
-	print("apply")
-	
 	var tier_lines_parent = $AddonsArea/KillerAndTierList/TierList/Tiers
 	
 	killers_and_addons_data[current_killer_name] = {
@@ -115,8 +112,6 @@ func apply_current_addons_data(data, tier_line):
 		"F": tier_lines_parent.get_node("F/HBoxContainer").get_children().map(get_addon_name)
 	}
 	
-	print(killers_and_addons_data[current_killer_name])
-
 func _on_back_button_pressed():
 	current_killer_name = ""
 	portraits_grid.show()
