@@ -61,10 +61,10 @@ grow_vertical = 2
 [node name="CropScreenshotArea" type="Control" parent="AddonsArea"]
 visible = false
 anchors_preset = 0
-offset_left = 41.0
-offset_top = 15.0
-offset_right = 1120.0
-offset_bottom = 1023.0
+offset_left = 31.0
+offset_top = 14.0
+offset_right = 1128.0
+offset_bottom = 1133.0
 
 [node name="KillerAndTierList" type="Control" parent="AddonsArea"]
 layout_mode = 1
@@ -89,17 +89,14 @@ stretch_mode = 4
 
 [node name="TierList" type="Control" parent="AddonsArea/KillerAndTierList"]
 layout_mode = 1
-anchors_preset = 8
+anchors_preset = 5
 anchor_left = 0.5
-anchor_top = 0.5
 anchor_right = 0.5
-anchor_bottom = 0.5
 offset_left = -534.5
-offset_top = -322.0
+offset_top = 256.0
 offset_right = 535.5
-offset_bottom = 541.0
+offset_bottom = 1127.0
 grow_horizontal = 2
-grow_vertical = 2
 
 [node name="Tiers" type="VBoxContainer" parent="AddonsArea/KillerAndTierList/TierList"]
 layout_mode = 1
@@ -142,6 +139,12 @@ layout_mode = 2
 tier_background_color = Color(0.905882, 0.498039, 0.227451, 1)
 tier_letter_color = Color(0.827451, 0, 0, 1)
 tier_letter = "D"
+
+[node name="E" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
+layout_mode = 2
+tier_background_color = Color(0.866667, 0.266667, 0.192157, 1)
+tier_letter_color = Color(0.756863, 0, 0, 1)
+tier_letter = "E"
 
 [node name="F" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
@@ -264,6 +267,7 @@ autowrap_mode = 3
 [connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/B" method="_on_back_button_pressed"]
 [connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/C" method="_on_back_button_pressed"]
 [connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/D" method="_on_back_button_pressed"]
+[connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/E" method="_on_back_button_pressed"]
 [connection signal="pressed" from="AddonsArea/HBoxContainer/BackButton" to="AddonsArea/KillerAndTierList/TierList/Tiers/F" method="_on_back_button_pressed"]
 [connection signal="pressed" from="AddonsArea/HBoxContainer/Save" to="." method="_on_save_pressed"]
 [connection signal="pressed" from="AddonsArea/HBoxContainer/Load" to="." method="_on_load_pressed"]

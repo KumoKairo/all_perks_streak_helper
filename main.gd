@@ -78,7 +78,7 @@ func get_base_images_dir():
 		var dir = DirAccess.open("res://").get_current_dir()
 		base_dir = ProjectSettings.globalize_path(dir)
 	else:
-		base_dir = OS.get_executable_path().get_base_dir() 
+		base_dir = OS.get_executable_path().get_base_dir() + "/"
 		
 	return base_dir + ADDONS_DIR
 	
@@ -100,6 +100,9 @@ func load_external_tex(path):
 	return texture
 	
 func apply_current_addons_data(data, tier_line):
+	
+	print("apply")
+	
 	var tier_lines_parent = $AddonsArea/KillerAndTierList/TierList/Tiers
 	
 	killers_and_addons_data[current_killer_name] = {
@@ -108,8 +111,11 @@ func apply_current_addons_data(data, tier_line):
 		"B": tier_lines_parent.get_node("B/HBoxContainer").get_children().map(get_addon_name),
 		"C": tier_lines_parent.get_node("C/HBoxContainer").get_children().map(get_addon_name),
 		"D": tier_lines_parent.get_node("D/HBoxContainer").get_children().map(get_addon_name),
+		"E": tier_lines_parent.get_node("E/HBoxContainer").get_children().map(get_addon_name),
 		"F": tier_lines_parent.get_node("F/HBoxContainer").get_children().map(get_addon_name)
 	}
+	
+	print(killers_and_addons_data[current_killer_name])
 
 func _on_back_button_pressed():
 	current_killer_name = ""
