@@ -24,7 +24,7 @@ func _ready():
 		
 	for tier in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
 		tier_lines[tier.name] = tier
-	
+		
 func add_killer_portrait_buttons(folders):
 	for folder in folders:
 		var dir = DirAccess.open(folder)
@@ -120,6 +120,7 @@ func _on_save_pressed():
 	var file = FileAccess.open("save.json", FileAccess.WRITE)
 	file.store_string(save_data)
 	file.close()
+	$PopupMessage.show_text("Saved everything to 'save.json' file. Back it up just in case")
 
 func _on_load_pressed():
 	pass
@@ -129,3 +130,4 @@ func _on_share_pressed():
 	var crop_size = crop_screenshit_area.get_rect().size
 	var image = get_viewport().get_texture().get_image().get_region(Rect2i(crop_top_left, crop_size))
 	image.save_png(current_killer_name + ".png")
+	$PopupMessage.show_text("Saved current tierlist image to '%s.png'" % current_killer_name)
