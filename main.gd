@@ -139,6 +139,9 @@ func _on_load_pressed():
 		$PopupMessage.show_text("'save.json' file is corrupted or just can't be read. Make sure it was made by this app")
 		return
 		
+	for tier in $AddonsArea/KillerAndTierList/TierList/Tiers.get_children():
+		tier_lines[tier.name].clear()
+		
 	killers_and_addons_data = save_data
 	var fake_button = {}
 	fake_button.killer_ordered_name = current_killer_name

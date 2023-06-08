@@ -109,7 +109,6 @@ theme_override_constants/separation = 4
 
 [node name="S" parent="AddonsArea/KillerAndTierList/TierList/Tiers" instance=ExtResource("5_d3wpa")]
 layout_mode = 2
-color = Color(0.176471, 0.176471, 0.176471, 1)
 tier_background_color = Color(0.32549, 0.878431, 0.913725, 1)
 tier_letter_color = Color(0, 0.568627, 0.694118, 1)
 tier_letter = "S"
