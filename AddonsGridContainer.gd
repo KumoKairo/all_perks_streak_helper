@@ -32,7 +32,15 @@ func show_or_hide_addon(addon):
 #			break
 
 func unparent_and_give_addons(addon_names):
-	var filtered_children = get_children().filter(func(a): return addon_names.has(a.addon_info.name))
+	# we are doing it imperatively instead of using .filter to maintain the order of addons
+	var filtered_children = Array()
+	var children = get_children()
+	# N^2 booo you're fired (it's alright, I couldn't find a proper .find() method that takes a predicate
+	for addon_name in addon_names:
+		for child in children:
+			if child.addon_info.name == addon_name:
+				filtered_children.append(child)
+				
 	for child in filtered_children:
 		remove_child(child)
 	return filtered_children
