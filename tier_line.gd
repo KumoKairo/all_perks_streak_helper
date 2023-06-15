@@ -20,7 +20,7 @@ func _can_drop_data(_at_position, data):
 func _drop_data(_at_position, data):
 	data.drag_object.get_parent().remove_child(data.drag_object)
 	$HBoxContainer.add_child(data.drag_object)
-	receive_dropped_addon.emit(data, self)
+	receive_dropped_addon.emit()
 	
 func clear():
 	_on_back_button_pressed()

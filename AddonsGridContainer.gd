@@ -1,10 +1,13 @@
 extends GridContainer
 class_name AddonsGridContainer
 
+signal on_dropped_addon_on_addon
+
 func show_addons(addons, save_state):
 	while get_child_count() < len(addons):
 		var addon = load("res://addon.tscn").instantiate()
 		addon.start_drag.connect(_on_addon_start_drag)
+		addon.drop_received.connect(_on_addon_drop_received)
 		add_child(addon)
 		
 	for i in range(0, get_child_count()):
@@ -20,6 +23,9 @@ func _drop_data(_at_position, data):
 #		if data.addon_name == pooled_addon.addon_info.name and not pooled_addon.is_visible_in_tree():
 #			pooled_addon.show()
 
+func _on_addon_drop_received():
+	on_dropped_addon_on_addon.emit()
+	
 func _on_addon_start_drag(addon):
 	pass
 	#show_or_hide_addon(addon)

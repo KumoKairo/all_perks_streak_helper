@@ -17,6 +17,7 @@ var killers_and_addons_data = {}
 var tier_lines = {}
 
 func _ready():
+	addons_grid_container.on_dropped_addon_on_addon.connect(apply_current_addons_data)
 	var dir = get_base_images_dir() 
 	var folders = get_addon_folders(dir)
 	add_killer_portrait_buttons(folders)
@@ -99,7 +100,7 @@ func load_external_tex(path):
 	var texture = ImageTexture.create_from_image(image)
 	return texture
 	
-func apply_current_addons_data(data, tier_line):
+func apply_current_addons_data():
 	var tier_lines_parent = $AddonsArea/KillerAndTierList/TierList/Tiers
 	
 	killers_and_addons_data[current_killer_name] = {

@@ -2,6 +2,7 @@ extends Control
 class_name AddonImage
 
 signal start_drag
+signal drop_received
 
 var addon_info
 var drag_preview
@@ -22,6 +23,7 @@ func _drop_data(_at_position, data):
 		get_parent().add_child(data.drag_object)
 		
 	get_parent().move_child(data.drag_object, get_index())
+	drop_received.emit()
 	
 func _get_drag_data(at_position):
 	var data = {}
