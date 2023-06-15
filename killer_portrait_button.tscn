@@ -4,6 +4,11 @@
 [ext_resource type="Script" path="res://killer_portrait_button.gd" id="2_tsulm"]
 
 [node name="KillerPortraitButton" type="MarginContainer"]
+custom_minimum_size = Vector2(268, 368)
+offset_right = 268.0
+offset_bottom = 368.0
+size_flags_horizontal = 8
+size_flags_vertical = 8
 theme = ExtResource("1_1byrd")
 theme_override_constants/margin_left = 8
 theme_override_constants/margin_top = 8
@@ -13,5 +18,7 @@ script = ExtResource("2_tsulm")
 
 [node name="Button" type="Button" parent="."]
 layout_mode = 2
+icon_alignment = 1
+expand_icon = true
 
 [connection signal="pressed" from="Button" to="." method="_on_button_pressed"]

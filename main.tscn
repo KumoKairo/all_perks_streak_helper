@@ -46,7 +46,6 @@ horizontal_scroll_mode = 0
 
 [node name="PortraitsGrid" type="GridContainer" parent="KillersList"]
 layout_mode = 2
-size_flags_horizontal = 3
 columns = 7
 
 [node name="AddonsArea" type="Control" parent="."]
