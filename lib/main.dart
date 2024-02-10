@@ -1,3 +1,5 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:all_perks_streak_helper/dataController.dart';
 import 'package:flutter_colorpicker/flutter_colorpicker.dart';
@@ -211,7 +213,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                                       ? 4
                                       : 2)),
                       margin: const EdgeInsets.all(1.0),
-                      child: Image(image: AssetImage(killerPerk)),
+                      child: Image(image: FileImage(File(killerPerk))),
                     ));
                 killerPerkWidgets.add(Draggable<String>(
                     data: '$killer $killerPerk',
@@ -258,7 +260,11 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                       const EdgeInsets.symmetric(horizontal: 8.0, vertical: 2),
                   child: Row(children: [
                     ReorderableDragStartListener(
-                        index: index, child: Image(image: AssetImage(killer))),
+                        index: index,
+                        child: Image(
+                          image: FileImage(File(killer)),
+                          height: 92,
+                        )),
                     ...killerPerkWidgets
                   ]),
                 ),
@@ -281,7 +287,7 @@ class _KillersPerksViewWidgetState extends State<KillersPerksViewWidget> {
                                 ? 4
                                 : 2)),
                     margin: const EdgeInsets.all(1.0),
-                    child: Image(image: AssetImage(perk)),
+                    child: Image(image: FileImage(File(perk))),
                   ));
               perkIcons.add(Draggable<String>(
                   data: perk,

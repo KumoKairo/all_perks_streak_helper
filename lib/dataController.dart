@@ -17,6 +17,10 @@ class PerkPathToReadableName {
 }
 
 class DataController extends GetxController {
+  static const String assetsRootFolder = "data/flutter_assets";
+  static const String imagesRootFolder = "assets/images";
+  static const String portraitsFolder = "killers";
+  static const String perksFolder = "perks";
   static const String shouldColorEverythingStoreKey = "color_everything";
 
   final beforeCapitalLetterSplit = RegExp(r"(?=[A-Z])");
@@ -62,23 +66,40 @@ class DataController extends GetxController {
       return;
     }
 
-    final manifestContent = await rootBundle.loadString('AssetManifest.json');
-    final Map<String, dynamic> manifestMap = json.decode(manifestContent);
-    killers = manifestMap.keys
-        .where((key) => key.contains('killers/') && !key.contains('.DS_Store'))
+    if (!Directory(imagesRootFolder).existsSync()) {
+      Directory.current = assetsRootFolder;
+    }
+
+    var portraitImages = Directory("$imagesRootFolder/$portraitsFolder")
+        .listSync()
+        .where((file) => !file.path.contains('.DS_Store'))
+        .map((file) => file.path)
         .toList();
 
-    perks = manifestMap.keys
-        .where((key) => key.contains('perks/') && !key.contains('.DS_Store'))
+    var perkImages = Directory("$imagesRootFolder/$perksFolder")
+        .listSync()
+        .where((file) => !file.path.contains('.DS_Store'))
+        .map((file) => file.path)
         .toList();
+
+    killers = portraitImages;
+    perks = perkImages;
 
     allAvailablePerks = List.empty(growable: true);
 
     for (int i = 0; i < perks!.length; i++) {
       var perkPathName = perks![i];
       var readableName = perkPathName
+          .toLowerCase()
+          .replaceAll("assets/images/perks\\", "")
           .replaceAll("assets/images/perks/", "")
-          .replaceAll("IconPerks_", "")
+          .replaceAll("1IconPerks_", "")
+          .replaceAll(".jpg", "")
+          .replaceAll("1_", "")
+          .replaceAll("2_", "")
+          .replaceAll("Iconperks_", "")
+          .replaceAll("iconperks_", "")
+          .replaceAll(".png", "")
           .replaceAll(".webp", "");
       readableName = readableName.split(beforeCapitalLetterSplit).join(" ");
       readableName = readableName[0].toUpperCase() + readableName.substring(1);
